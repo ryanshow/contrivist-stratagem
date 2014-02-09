@@ -1,7 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <format.h>
 
-#include "config.h"
+#include "version.h"
 
 int main(int argc, char **argv)
 {
@@ -40,4 +40,4 @@ int main(int argc, char **argv)
 
     glfwTerminate();
     return 0;
-}
+} 

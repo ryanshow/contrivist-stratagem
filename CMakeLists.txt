@@ -1,20 +1,36 @@
-cmake_minimum_required (VERSION 2.8.12.2)
+cmake_minimum_required (VERSION 2.8)
 project (ContrivistStratagem)
 
 set (CS_VERSION_MAJOR 0)
 set (CS_VERSION_MINOR 1)
 
-set (GIT_EXECUTABLE git)
+# Get the git revision hash upon build time
+find_package (Git)
+file (WRITE ${CMAKE_BINARY_DIR}/main.c
+    "\#include \"version.h\"\nint main(void){return 0;}\n"
+)
+file (WRITE ${CMAKE_BINARY_DIR}/git_sha1.h.in
+    "\#define GIT_SHA1 \"@GIT_SHA1@\"\n"
+)
+file (WRITE ${CMAKE_BINARY_DIR}/git_sha1.cmake
+    "EXECUTE_PROCESS(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+        OUTPUT_VARIABLE GIT_SHA1
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    CONFIGURE_FILE(\${SRC} \${DST} @ONLY)
+")
 
-execute_process(COMMAND
-    "${GIT_EXECUTABLE}" rev-parse --short HEAD
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    OUTPUT_VARIABLE GIT_SHA1
-    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+add_custom_target (
+    version
+    ${CMAKE_COMMAND} -D SRC=${CMAKE_BINARY_DIR}/git_sha1.h.in
+                     -D DST=${CMAKE_BINARY_DIR}/git_sha1.h
+                     -P ${CMAKE_BINARY_DIR}/git_sha1.cmake
+)
 
 configure_file (
-    "${PROJECT_SOURCE_DIR}/src/config.h.in"
-    "${PROJECT_BINARY_DIR}/config.h"
+    "${PROJECT_SOURCE_DIR}/src/version.h.in"
+    "${PROJECT_BINARY_DIR}/version.h"
 )
 
 include (CheckCXXCompilerFlag)
@@ -39,6 +55,7 @@ include_directories (
     extern/glm
     ${GLEW_INCLUDE_PATH}
     ${PROJECT_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}
 )
 
 set (CS_SOURCE src/main.cpp
@@ -53,3 +70,5 @@ endif ()
 message (STATUS "${GLFW_LIBRARIES}")
 
 target_link_libraries (cs format glfw ${GLFW_LIBRARIES} ${GLEW_LIBRARY})
+
+add_dependencies (cs version)

@@ -1,3 +1,4 @@
+#include "git_sha1.h"
+
 #define CS_VERSION_MAJOR @CS_VERSION_MAJOR@
 #define CS_VERSION_MINOR @CS_VERSION_MINOR@
-#define GIT_SHA1 "@GIT_SHA1@"
