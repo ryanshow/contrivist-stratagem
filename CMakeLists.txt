@@ -4,6 +4,14 @@ project (ContrivistStratagem)
 set (CS_VERSION_MAJOR 0)
 set (CS_VERSION_MINOR 1)
 
+set (GIT_EXECUTABLE git)
+
+execute_process(COMMAND
+    "${GIT_EXECUTABLE}" rev-parse --short HEAD
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE GIT_SHA1
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/config.h.in"
     "${PROJECT_BINARY_DIR}/config.h"
