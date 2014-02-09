@@ -1,0 +1,9 @@
+[submodule "extern/glfw3"]
+	path = extern/glfw3
+	url = https://github.com/glfw/glfw.git
+[submodule "extern/glm"]
+	path = extern/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "extern/format"]
+	path = extern/format
+	url = https://github.com/vitaut/format.git
