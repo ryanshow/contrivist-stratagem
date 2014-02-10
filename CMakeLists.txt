@@ -50,25 +50,30 @@ add_subdirectory (extern/format)
 find_package(GLEW REQUIRED)
 
 include_directories (
-    extern/format
-    extern/glfw3/include
-    extern/glm
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/extern/format
+    ${PROJECT_SOURCE_DIR}/extern/glfw3/include
+    ${PROJECT_SOURCE_DIR}/extern/glm
     ${GLEW_INCLUDE_PATH}
     ${PROJECT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
 )
 
-set (CS_SOURCE src/main.cpp
-)
+file (GLOB COMMON_SOURCE "src/*.cpp")
 
-add_executable (cs ${CS_SOURCE})
+file (GLOB COMMON_HEADERS "src/*.h")
+
+add_executable (cs ${COMMON_SOURCE} ${COMMON_HEADERS})
 
 if (HAVE_STD_CPP11_FLAG)
     set_target_properties (cs PROPERTIES COMPILE_FLAGS "-std=c++11")
 endif ()
 
-message (STATUS "${GLFW_LIBRARIES}")
-
 target_link_libraries (cs format glfw ${GLFW_LIBRARIES} ${GLEW_LIBRARY})
 
 add_dependencies (cs version)
+
+file (
+    COPY assets
+    DESTINATION ./
+)
