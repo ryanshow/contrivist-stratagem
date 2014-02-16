@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 void init_gl() {
     // Enable the depth buffer
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+    glDepthFunc(GL_LESS);
 }
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
