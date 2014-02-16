@@ -9,6 +9,7 @@
 
 #include <format.h>
 
+#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
 #include "shader.h"
@@ -49,8 +50,6 @@ Shader::Shader(const ShaderTypeNameMap &shader_names) {
 
         // TODO: Do we raise an exception or something at this point?
     }
-
-    fmt::Print("Program linked completed!\n");
 }
 
 

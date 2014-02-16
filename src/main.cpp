@@ -3,7 +3,7 @@
 #include <thread>
 
 // OpenGL related headers
-#include <GL/glew.h>
+#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
 // Math Utilities
@@ -19,15 +19,16 @@
 #include "version.h"
 
 // Other utility headers
-#include "shader.h"
-#include "vertex.h"
+#include "scene.h"
+#include "grid.h"
 
-#define MAX_FPS 60
+#define MAX_FPS 6
 #define MAX_FPS_INTERVAL (1/double(MAX_FPS))
 
 // Prototypes
 void framebufferSizeCallback(GLFWwindow*, int, int);
 void errorCallback(int error, const char* description);
+void init_gl();
 
 // Local namespace
 namespace {
@@ -35,7 +36,6 @@ namespace {
 
     glm::mat4 projection_matrix;
     glm::mat4 view_matrix;
-    glm::mat4 model_matrix;
 }
 
 int main(int argc, char **argv)
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     /* Set the error callback early on so it can capture errors from creating a window */
     glfwSetErrorCallback(errorCallback);
 
-    /* Initialize the library */
+    /* Initialize glfw */
     if (!glfwInit()) {
         exit(EXIT_FAILURE);
     }
@@ -73,26 +73,23 @@ int main(int argc, char **argv)
     glfwMakeContextCurrent(window);
 
     /* Enable VSync */
-     glfwSwapInterval(1);
+    glfwSwapInterval(1);
 
-    /* Initialize GLEW */
-    GLenum glew_err = glewInit();
-    if (glew_err != GLEW_OK) {
-        fmt::Print("GLEW ERROR: {0}\n") << reinterpret_cast<const char*>(glewGetErrorString(glew_err));
-    }
+    init_gl();
 
-    ShaderTypeNameMap shader_type_names;
-    shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
-    shader_type_names[GL_FRAGMENT_SHADER] = "simple_shader.frag";
-    Shader::getShader(shader_type_names);
+    Grid* obj = new Grid();
+
+    Scene* scene = Scene::addScene(800, 600);
+    scene->addObject(obj);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         glfwSetTime(0.0f);
 
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        for (Scene scene : Scene::scenes) {
+            scene.render();
+        }
 
         /* Swap buffers, poll events */
         glfwSwapBuffers(window);
@@ -100,7 +97,11 @@ int main(int argc, char **argv)
 
         // Cap our framerate at MAX_FPS
         if (glfwGetTime() < MAX_FPS_INTERVAL) {
-            std::this_thread::sleep_for(std::chrono::microseconds(int((MAX_FPS_INTERVAL - glfwGetTime()) * 1000000)));
+            std::this_thread::sleep_for(
+                std::chrono::microseconds(
+                    int((MAX_FPS_INTERVAL - glfwGetTime()) * 1000000)
+                )
+            );
         }
     }
 
@@ -109,31 +110,10 @@ int main(int argc, char **argv)
     exit(EXIT_SUCCESS);
 }
 
-void init_gl(GLFWwindow* window) {
+void init_gl() {
     // Enable the depth buffer
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    // Set the clear color
-    glClearColor(0.1, 0.1, 0.1, 1.0);
-
-    // Initialize the model transformation matrix
-    // FIXME: Split this out, eventually... or rename it to "scene"
-    model_matrix = glm::mat4(1.0f);
-    model_matrix = glm::rotate(model_matrix, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f));
-    model_matrix = glm::scale(model_matrix, glm::vec3(1.0f, 1.0f, 1.0f));
-
-    // Initialize the projection matrix (Gives the world a perspective feel, rather than orthographic)
-    projection_matrix = glm::mat4(1.0f);
-    projection_matrix *= glm::perspective(45.0f, 4.0f/3.0f, 0.1f, 100.0f);
-
-    // Initialize the view matrix, essentially the camera or "eye" orientation in space
-    view_matrix = glm::mat4(1.0f);
-    view_matrix *= glm::lookAt(
-            glm::vec3(1.0f, 3.0f, 5.0f),    // The eye's position in 3d space
-            glm::vec3(0.0f, 0.0f, 0.0f),    // What the eye is looking at
-            glm::vec3(0.0f, 1.0f, 0.0f));    // The eye's orientation vector (which way is up)
+    glDepthFunc(GL_LEQUAL);
 }
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -141,10 +121,9 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     // Set the rendering viewport in the window
     glViewport(0, 0, width, height);
 
-    // Update the projection matrix with the new ratio
-    projection_matrix = glm::mat4(1.0f);
-    projection_matrix *= glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
-
+    for (Scene scene : Scene::scenes) {
+        scene.resizeCallback(width, height);
+    }
 }
 
 void errorCallback(int error, const char* description) {
@@ -152,36 +131,3 @@ void errorCallback(int error, const char* description) {
     glfwTerminate();
     exit(EXIT_FAILURE);
 }
-
-
-/*
-class Grid: public BasicObject {
-    public:
-
-
-}
-
-void drawGrid() {
-    Vertex v0, v1;
-    v0.x = -1.0f; v0.y =  0.0f; v0.z =  0.0f; vertex_list.push_back(v0);
-    v1.x =  1.0f; v1.y =  0.0f; v1.z =  0.0f; vertex_list.push_back(v1);
-
-    index_list.push_back(0); index_list.push_back(1);
-
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    glGenBuffers(1, &vbo_vertices);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*vert_list.size(), &(vert_list)[0], GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-
-    glGenBuffers(1, &vbo_vertices);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo_indices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*index_list.size(), &(index_list)[0], GL_STATIC_DRAW);
-
-
-}
-*/

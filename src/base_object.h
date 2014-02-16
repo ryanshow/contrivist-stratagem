@@ -1,17 +1,47 @@
 #ifndef BASE_OBJECT_H
 #define BASE_OBJECT_H
 
+#include <vector>
+
+#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
+#define GLM_FORCE_RADIANS 1
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "shader.h"
+#include "vertex.h"
+
+#define M_PROJECTION 1
+#define M_VIEW       2
+#define M_MODEL      4
+
+class Scene;
 
 class BaseObject {
     public:
-        //std::vector<Vertex> vert_list;
-        //std::vector<GLushort> index_list;
-        //GLuint vao, vbo_vertices, vbo_indices;
-        BaseObject();
+        // The model's shader information
         Shader *shader;
+
+        BaseObject();
+
+        void bindBufferData();
+        void bindMatrixData(Scene *scene, const unsigned char bind_mask);
+        virtual void render(Scene* scene);
+        void setVertices(Vertex* vert_list, int vert_count);
+        void setIndices(int* index_list, int index_count);
+        void resetModelMatrix();
+
+    protected:
+        // The model's transformation matrix
+        glm::mat4 model_matrix;
+
+        // Information about the model's vertices/indices
+        std::vector<Vertex> vertex_list;
+        std::vector<GLushort> index_list;
+        GLuint vao, vbo_vertices, vbo_indices;
+        GLenum draw_method;
 };
 
 #endif

@@ -46,15 +46,11 @@ add_subdirectory (extern/glfw3)
 # Compile Format
 add_subdirectory (extern/format)
 
-# GLEW is pretty much impossible to compile directly with CMake.
-find_package(GLEW REQUIRED)
-
 include_directories (
     ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/extern/format
     ${PROJECT_SOURCE_DIR}/extern/glfw3/include
     ${PROJECT_SOURCE_DIR}/extern/glm
-    ${GLEW_INCLUDE_PATH}
     ${PROJECT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
 )
@@ -69,7 +65,7 @@ if (HAVE_STD_CPP11_FLAG)
     set_target_properties (cs PROPERTIES COMPILE_FLAGS "-std=c++11")
 endif ()
 
-target_link_libraries (cs format glfw ${GLFW_LIBRARIES} ${GLEW_LIBRARY})
+target_link_libraries (cs format glfw ${GLFW_LIBRARIES})
 
 add_dependencies (cs version)
 
