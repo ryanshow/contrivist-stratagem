@@ -1,17 +1,12 @@
 #define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
-#define GLM_FORCE_RADIANS
-#include <glm/gtc/type_ptr.hpp>
-
 #include "format.h"
 
 #include "base_object.h"
 #include "scene.h"
 
 BaseObject::BaseObject() {
-
-    fmt::Print("BaseObject constructor\n");
 
     // Set up the default shader for the object
     ShaderTypeNameMap shader_type_names;
@@ -32,73 +27,76 @@ BaseObject::BaseObject() {
     // Create the Vertex Array Object
     glGenVertexArrays(1, &this->vao);
     glBindVertexArray(this->vao);
+        // Create the Vertex Buffer Object
+        glGenBuffers(1, &this->vbo_vertices);
 
-    // Create the Vertex Buffer Object
-    glGenBuffers(1, &this->vbo_vertices);
+        // Create the Index Buffer Object
+        glGenBuffers(1, &this->vbo_indices);
 
-    // Create the Index Buffer Object
-    glGenBuffers(1, &this->vbo_indices);
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo_vertices);
+            // Position (XYZ)
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(
+                0,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Vertex),
+                (void*)offsetof(Vertex, x));
 
-    // Provide mechanisms for the shaders to access vertex attributes
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo_vertices);
+            // Normal (XYZ)
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(
+                1,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Vertex),
+                (void*)offsetof(Vertex, nx));
 
-    // Position (XYZ)
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(Vertex),
-        (void*)offsetof(Vertex, x));
+            // Color (RGBA)
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(
+                2,
+                4,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Vertex),
+                (void*)offsetof(Vertex, r));
 
-    // Normal (XYZ)
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(
-        1,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(Vertex),
-        (void*)offsetof(Vertex, nx));
+            // Texture (ST)
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(
+                3,
+                2,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Vertex),
+                (void*)offsetof(Vertex, s0));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    // Color (RGBA)
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(
-        2,
-        4,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(Vertex),
-        (void*)offsetof(Vertex, r));
-
-    // Texture (ST)
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(
-        3,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(Vertex),
-        (void*)offsetof(Vertex, s0));
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo_indices);
+    glBindVertexArray(0);
 }
 
 void BaseObject::bindBufferData() {
     // Bind the vertex buffer data
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo_vertices);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(Vertex)*this->vertex_list.size(),
-        &(this->vertex_list)[0],
-        GL_STATIC_DRAW);
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            sizeof(Vertex)*this->vertex_list.size(),
+            &(this->vertex_list)[0],
+            GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Bind the Index buffer data
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo_indices);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(GLuint)*this->index_list.size(),
-        &(this->index_list)[0],
-        GL_STATIC_DRAW);
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            sizeof(GLuint)*this->index_list.size(),
+            &(this->index_list)[0],
+            GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
@@ -131,18 +129,18 @@ void BaseObject::render(Scene* scene) {
 
     // Make our vertex array active
     glBindVertexArray(this->vao);
+        // Tell the renderer to use our shader program when rendering our object
+        glUseProgram(this->shader->program_id);
+            this->bindMatrixData(scene, M_PROJECTION|M_VIEW|M_MODEL);
 
-    // Tell the renderer to use our shader program when rendering our object
-    glUseProgram(this->shader->program_id);
-
-    this->bindMatrixData(scene, M_PROJECTION|M_VIEW|M_MODEL);
-
-    // Render the vao on the screen using "GL_LINE_LOOP"
-    glDrawElements(
-        this->draw_method,
-        this->index_list.size(),
-        GL_UNSIGNED_SHORT,
-        (void*)0);
+            // Render the vao on the screen using "GL_LINE_LOOP"
+            glDrawElements(
+                this->draw_method,
+                this->index_list.size(),
+                GL_UNSIGNED_SHORT,
+                (void*)0);
+        glUseProgram(0);
+    glBindVertexArray(0);
 }
 
 void BaseObject::setVertices(Vertex* vert_list, int vert_count) {

@@ -61,6 +61,7 @@ include_directories (
     ${PROJECT_SOURCE_DIR}/extern/format
     ${PROJECT_SOURCE_DIR}/extern/glfw3/include
     ${PROJECT_SOURCE_DIR}/extern/glm
+    ${PROJECT_SOURCE_DIR}/extern/gli
     ${PROJECT_SOURCE_DIR}/extern/chaiscript/include
     ${PROJECT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
