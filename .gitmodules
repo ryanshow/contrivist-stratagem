@@ -7,3 +7,9 @@
 [submodule "extern/format"]
 	path = extern/format
 	url = https://github.com/vitaut/format.git
+[submodule "extern/freetype-gl"]
+	path = extern/freetype-gl
+	url = https://github.com/rougier/freetype-gl.git
+[submodule "extern/chaiscript"]
+	path = extern/chaiscript
+	url = https://github.com/ChaiScript/ChaiScript.git

@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 class BaseObject;
+class Grid;
 
 class Scene {
     public:
@@ -27,6 +28,7 @@ class Scene {
         void render();
         void resizeCallback(int width, int height);
     private:
+        Grid* grid;
         std::vector<BaseObject*> objects;
 };
 

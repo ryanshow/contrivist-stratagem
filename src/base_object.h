@@ -31,11 +31,17 @@ class BaseObject {
         virtual void render(Scene* scene);
         void setVertices(Vertex* vert_list, int vert_count);
         void setIndices(int* index_list, int index_count);
-        void resetModelMatrix();
+
+        glm::mat4& getModelMatrix();
+        void setModelMatrix(glm::mat4 matrix);
+        void pushModelMatrix();
+        void popModelMatrix();
 
     protected:
         // The model's transformation matrix
+        // TODO: convert this into a vector and use a push/pop model instead
         glm::mat4 model_matrix;
+        std::vector<glm::mat4> model_matrix_stack;
 
         // Information about the model's vertices/indices
         std::vector<Vertex> vertex_list;

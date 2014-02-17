@@ -43,6 +43,16 @@ SET(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
 SET(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
 add_subdirectory (extern/glfw3)
 
+# Compile freetype-gl
+SET(freetype-gl_BUILD_DEMOS OFF CACHE BOOK "Build the freetype-gl example programs")
+add_subdirectory (extern/freetype-gl)
+
+# Compile Chaiscript
+SET(BUILD_MODULES OFF CACHE BOOL "Build Extra Modules")
+SET(BUILD_SAMPLES OFF CACHE BOOL "Build Samples Folder")
+SET(BUILD_TESTING OFF CACHE BOOL "Build Unit Tests")
+add_subdirectory (extern/chaiscript)
+
 # Compile Format
 add_subdirectory (extern/format)
 
@@ -51,6 +61,7 @@ include_directories (
     ${PROJECT_SOURCE_DIR}/extern/format
     ${PROJECT_SOURCE_DIR}/extern/glfw3/include
     ${PROJECT_SOURCE_DIR}/extern/glm
+    ${PROJECT_SOURCE_DIR}/extern/chaiscript/include
     ${PROJECT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
 )

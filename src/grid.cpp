@@ -45,10 +45,12 @@ void Grid::render(Scene* scene) {
     this->bindMatrixData(scene, M_PROJECTION|M_VIEW);
 
     // Draw the gridlines. Starting at the center and going out in both directions.
+    this->pushModelMatrix();
+    this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(-(this->size/2.0), 0.0f, 0.0f)));
     for (int i=-1; i<=1; i+=2) {
-        this->model_matrix = glm::translate(this->model_matrix, glm::vec3(-(this->size/2.0), 0.0f, 0.0f));
+        this->pushModelMatrix();
         for (int j=0; j<int(this->size/this->step)/2; j++) {
-            this->model_matrix = glm::translate(this->model_matrix, glm::vec3(0.0f, 0.0f, i*this->step));
+            this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(0.0f, 0.0f, i*this->step)));
             this->bindMatrixData(scene, M_MODEL);
             // Render the vao on the screen
             glDrawElements(
@@ -57,14 +59,17 @@ void Grid::render(Scene* scene) {
                 GL_UNSIGNED_SHORT,
                 (void*)0);
         }
-        this->resetModelMatrix();
+        this->popModelMatrix();
     }
+    this->popModelMatrix();
 
+    this->pushModelMatrix();
+    this->setModelMatrix(glm::rotate(this->getModelMatrix(), float(M_PI/2), glm::vec3(0.0f, -1.0f, 0.0f)));
+    this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(-(this->size/2.0), 0.0f, 0.0f)));
     for (int i=-1; i<=1; i+=2) {
-        this->model_matrix = glm::rotate(this->model_matrix, float(M_PI/2), glm::vec3(0.0f, -1.0f, 0.0f));
-        this->model_matrix = glm::translate(this->model_matrix, glm::vec3(-(this->size/2.0), 0.0f, 0.0f));
+        this->pushModelMatrix();
         for (int j=0; j<int(this->size/this->step)/2; j++) {
-            this->model_matrix = glm::translate(this->model_matrix, glm::vec3(0.0f, 0.0f, i*this->step));
+            this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(0.0f, 0.0f, i*this->step)));
             this->bindMatrixData(scene, M_MODEL);
             // Render the vao on the screen
             glDrawElements(
@@ -73,8 +78,9 @@ void Grid::render(Scene* scene) {
                 GL_UNSIGNED_SHORT,
                 (void*)0);
         }
-        this->resetModelMatrix();
+        this->popModelMatrix();
     }
+    this->popModelMatrix();
 
     // Disable depth testing for the centerlines
     int old_depth_func;
@@ -83,26 +89,26 @@ void Grid::render(Scene* scene) {
     glDepthFunc(GL_ALWAYS);
 
     // Draw the centerlines
-    this->resetModelMatrix();
-    this->model_matrix = glm::translate(this->model_matrix, glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f));
+    this->pushModelMatrix();
+    this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
     this->bindMatrixData(scene, M_MODEL);
     glDrawElements(
         this->draw_method,
         2,
         GL_UNSIGNED_SHORT,
         (char *)NULL + (4));
+    this->popModelMatrix();
 
-    this->resetModelMatrix();
-    this->model_matrix = glm::rotate(this->model_matrix, float(M_PI/2), glm::vec3(0.0f, -1.0f, 0.0f));
-    this->model_matrix = glm::translate(this->model_matrix, glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f));
+    this->pushModelMatrix();
+    this->setModelMatrix(glm::rotate(this->getModelMatrix(), float(M_PI/2), glm::vec3(0.0f, -1.0f, 0.0f)));
+    this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
     this->bindMatrixData(scene, M_MODEL);
     glDrawElements(
         this->draw_method,
         2,
         GL_UNSIGNED_SHORT,
         (char *)NULL + (4));
-
-    this->resetModelMatrix();
+    this->popModelMatrix();
 
     // Return depth testing to what it was before we disabled it.
     glDepthFunc(old_depth_func);

@@ -20,7 +20,11 @@ BaseObject::BaseObject() {
     this->shader = Shader::getShader(shader_type_names);
 
     // Initialize the model transformation matrix
-    this->resetModelMatrix();
+    glm::mat4 matrix = glm::mat4(1.0f);
+    matrix = glm::rotate(matrix, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    matrix = glm::translate(matrix, glm::vec3(0.0f, 0.0f, 0.0f));
+    matrix = glm::scale(matrix, glm::vec3(1.0f, 1.0f, 1.0f));
+    this->model_matrix_stack.push_back(matrix);
 
     // Set the default draw method
     this->draw_method = GL_LINES;
@@ -97,13 +101,6 @@ void BaseObject::bindBufferData() {
         GL_STATIC_DRAW);
 }
 
-void BaseObject::resetModelMatrix() {
-    this->model_matrix = glm::mat4(1.0f);
-    this->model_matrix = glm::rotate(this->model_matrix, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    this->model_matrix = glm::translate(this->model_matrix, glm::vec3(0.0f, 0.0f, 0.0f));
-    this->model_matrix = glm::scale(this->model_matrix, glm::vec3(1.0f, 1.0f, 1.0f));
-}
-
 void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
     if (bind_mask & M_PROJECTION) {
         // Bind the "proj_matrix" variable in our C++ program to the "Projection" variable in the shader
@@ -127,7 +124,7 @@ void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
             glGetUniformLocation(this->shader->program_id, "Model"),
             1,
             false,
-            glm::value_ptr(this->model_matrix));
+            glm::value_ptr(this->getModelMatrix()));
     }
 }
 void BaseObject::render(Scene* scene) {
@@ -160,4 +157,20 @@ void BaseObject::setIndices(int* index_list, int index_count) {
     for (int i=0; i<index_count; i++) {
         this->index_list.push_back(index_list[i]);
     }
+}
+
+glm::mat4& BaseObject::getModelMatrix() {
+    return this->model_matrix_stack.back();
+}
+
+void BaseObject::setModelMatrix(glm::mat4 matrix) {
+    this->model_matrix_stack.back() = matrix;
+}
+
+void BaseObject::pushModelMatrix() {
+    this->model_matrix_stack.push_back(this->model_matrix_stack.back());
+}
+
+void BaseObject::popModelMatrix() {
+    this->model_matrix_stack.pop_back();
 }

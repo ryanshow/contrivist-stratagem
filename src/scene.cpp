@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "scene.h"
+#include "grid.h"
 #include "base_object.h"
 
 //Initialize the static class variables
@@ -30,6 +31,7 @@ Scene::Scene(int width, int height) {
     this->clear_color_rgba[2] = 0.3;
     this->clear_color_rgba[3] = 1.0;
 
+    this->grid = new Grid();
 }
 
 void Scene::render() {
@@ -41,6 +43,11 @@ void Scene::render() {
     );
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+    // Render the grid first so it doesn't render over scene objects
+    if (this->grid != nullptr) {
+        this->grid->render(this);
+    }
 
     for (BaseObject* obj : this->objects) {
         obj->render(this);
