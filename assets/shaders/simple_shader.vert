@@ -1,23 +1,25 @@
 #version 330 core
 
-uniform mat4 Model;
-uniform mat4 View;
-uniform mat4 Projection;
+uniform mat4 gModel;
+uniform mat4 gView;
+uniform mat4 gProjection;
 
-layout(location=0) in vec3 Vertex;
-layout(location=1) in vec3 Normal;
-layout(location=2) in vec4 Color;
-layout(location=3) in vec2 Texture;
+layout(location=0) in vec3 gPosition;
+layout(location=1) in vec3 gNormal;
+layout(location=2) in vec4 gColor;
+layout(location=3) in vec2 gTexture;
 
-out vec3 vPos;
-out vec3 vNor;
-out vec4 vCol;
-out vec2 vTex;
+out VertexData {
+    vec3 gPosition;
+    vec3 gNormal;
+    vec4 gColor;
+    vec2 gTexture;
+} outData;
 
 void main(void) {
-    gl_Position = Projection * ((View * Model) * vec4(Vertex, 1.0));
-    vPos = Vertex;
-    vNor = Normal;
-    vCol = Color;
-    vTex = Texture;
+    gl_Position = gProjection * ((gView * gModel) * vec4(gPosition, 1.0));
+    outData.gPosition = gPosition;
+    outData.gNormal = gNormal;
+    outData.gColor = gColor;
+    outData.gTexture = gTexture;
 }

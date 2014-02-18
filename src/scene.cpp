@@ -20,7 +20,7 @@ Scene::Scene(int width, int height) {
     // Initialize the view matrix, essentially the camera or "eye" orientation in space
     this->view_matrix = glm::mat4(1.0f);
     this->view_matrix *= glm::lookAt(
-            glm::vec3(1.0f, 3.0f, 5.0f),    // The eye's position in 3d space
+            glm::vec3(1.0f, 2.0f, 2.0f),    // The eye's position in 3d space
             glm::vec3(0.0f, 0.0f, 0.0f),    // What the eye is looking at
             glm::vec3(0.0f, 1.0f, 0.0f));    // The eye's orientation vector (which way is up)
 

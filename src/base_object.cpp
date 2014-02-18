@@ -12,6 +12,7 @@ BaseObject::BaseObject() {
     ShaderTypeNameMap shader_type_names;
     shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
     shader_type_names[GL_FRAGMENT_SHADER] = "simple_shader.frag";
+    //shader_type_names[GL_GEOMETRY_SHADER] = "simple_shader.geom";
     this->shader = Shader::getShader(shader_type_names);
 
     // Initialize the model transformation matrix
@@ -26,13 +27,14 @@ BaseObject::BaseObject() {
 
     // Create the Vertex Array Object
     glGenVertexArrays(1, &this->vao);
+    // Create the Vertex Buffer Object
+    glGenBuffers(1, &this->vbo_vertices);
+    // Create the Index Buffer Object
+    glGenBuffers(1, &this->vbo_indices);
+
+    // VAOs allow us to declare all of these attrib pointers while the VAO is
+    // bound. This reduces clutter in the render member function.
     glBindVertexArray(this->vao);
-        // Create the Vertex Buffer Object
-        glGenBuffers(1, &this->vbo_vertices);
-
-        // Create the Index Buffer Object
-        glGenBuffers(1, &this->vbo_indices);
-
         glBindBuffer(GL_ARRAY_BUFFER, this->vbo_vertices);
             // Position (XYZ)
             glEnableVertexAttribArray(0);
@@ -65,6 +67,7 @@ BaseObject::BaseObject() {
                 (void*)offsetof(Vertex, r));
 
             // Texture (ST)
+            // TODO: I should bind the last 3 textures here and access it as an array in the shader
             glEnableVertexAttribArray(3);
             glVertexAttribPointer(
                 3,
@@ -75,6 +78,7 @@ BaseObject::BaseObject() {
                 (void*)offsetof(Vertex, s0));
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+        // Bind the index buffer to the VAO, since that's what we'll use to render
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo_indices);
     glBindVertexArray(0);
 }
@@ -103,7 +107,7 @@ void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
     if (bind_mask & M_PROJECTION) {
         // Bind the "proj_matrix" variable in our C++ program to the "Projection" variable in the shader
         glUniformMatrix4fv(
-            glGetUniformLocation(this->shader->program_id, "Projection"),
+            glGetUniformLocation(this->shader->program_id, "gProjection"),
             1,
             false,
             glm::value_ptr(scene->proj_matrix));
@@ -111,7 +115,7 @@ void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
     if (bind_mask & M_VIEW) {
         // Bind the "view_matrix" variable in our C++ program to the "View" variable in the shader
         glUniformMatrix4fv(
-            glGetUniformLocation(this->shader->program_id, "View"),
+            glGetUniformLocation(this->shader->program_id, "gView"),
             1,
             false,
             glm::value_ptr(scene->view_matrix));
@@ -119,7 +123,7 @@ void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
     if (bind_mask & M_MODEL) {
         // Bind the "model_matrix" variable in our C++ program to the "Model" variable in the shader
         glUniformMatrix4fv(
-            glGetUniformLocation(this->shader->program_id, "Model"),
+            glGetUniformLocation(this->shader->program_id, "gModel"),
             1,
             false,
             glm::value_ptr(this->getModelMatrix()));

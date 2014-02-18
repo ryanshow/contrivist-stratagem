@@ -40,8 +40,6 @@ class BaseObject {
 
     protected:
         // The model's transformation matrix
-        // TODO: convert this into a vector and use a push/pop model instead
-        glm::mat4 model_matrix;
         std::vector<glm::mat4> model_matrix_stack;
 
         // Information about the model's vertices/indices

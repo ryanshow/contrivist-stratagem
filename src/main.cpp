@@ -19,16 +19,16 @@
 #include "version.h"
 
 // Other utility headers
-#include "scene.h"
 #include "grid.h"
+#include "scene.h"
+#include "sprite.h"
 #include "window.h"
 
-double some_func(int i, double j) {
-    return i * j;
+void errorCallback(int error, const char* description) {
+    fmt::Print("GLFW ERROR: {0}\n") << description;
+    glfwTerminate();
+    exit(EXIT_FAILURE);
 }
-
-// Prototypes
-void errorCallback(int error, const char* description);
 
 int main(int argc, char **argv)
 {
@@ -42,9 +42,6 @@ int main(int argc, char **argv)
 
     // Initialize Chaiscript engine
     chaiscript::ChaiScript chai(chaiscript::Std_Lib::library());
-    chai.add(chaiscript::fun(&some_func), "function");
-    double d = chai.eval<double>("function(3, 4.75);");
-    fmt::Print("Chai evaluated this: {0}\n") << d;
 
     const char* window_title = fmt::c_str(fmt::Format("Contravist Stratagem v{0}.{1} ({2})") << CS_VERSION_MAJOR << CS_VERSION_MINOR << GIT_SHA1);
     Window *window = Window::createWindow(window_title, 800, 600);
@@ -53,6 +50,7 @@ int main(int argc, char **argv)
     glfwSwapInterval(1);
 
     Scene* scene = Scene::addScene(800, 600);
+    scene->addObject(new Sprite());
     window->addScene(scene);
 
     // Loop until the user closes the window
@@ -63,10 +61,4 @@ int main(int argc, char **argv)
     glfwDestroyWindow(window->getWindow());
     glfwTerminate();
     exit(EXIT_SUCCESS);
-}
-
-void errorCallback(int error, const char* description) {
-    fmt::Print("GLFW ERROR: {0}\n") << description;
-    glfwTerminate();
-    exit(EXIT_FAILURE);
 }
