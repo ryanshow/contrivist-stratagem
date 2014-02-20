@@ -22,7 +22,8 @@ Sprite::Sprite() {
     this->draw_method = GL_POINTS;
 
     Vertex v[1] {};
-    v[0].y = 0.0;v[0].r = 1.0f; v[0].a = 1.0f;
+    v[0].y = 0.0;
+    v[0].r = 1.0f; v[0].g=1.0; v[0].b=1.0; v[0].a = 1.0f;
 
     int i[1] {0};
 
@@ -31,7 +32,7 @@ Sprite::Sprite() {
     this->bindBufferData();
 
     // Load up the image
-    unsigned int error = lodepng::decode(this->image, this->textureSize[0], this->textureSize[1], "assets/images/charmander.png");
+    unsigned int error = lodepng::decode(this->image, this->textureSize[0], this->textureSize[1], "assets/images/black_mage.png");
     if (error != 0) {
         fmt::Print("Error: {0}\n") << lodepng_error_text(error);
     }

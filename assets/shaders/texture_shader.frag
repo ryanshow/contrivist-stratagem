@@ -12,7 +12,7 @@ in VertexData {
 } inData;
 
 void main() {
-    FragColor = texture(gColorMap, vec2(1.0-inData.gTexture.s, 1.0-inData.gTexture.t));
+    FragColor = inData.gColor * texture(gColorMap, vec2(1.0-inData.gTexture.s, 1.0-inData.gTexture.t));
 
     if (FragColor.a < 0.5) {
         discard;
