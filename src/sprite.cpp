@@ -9,6 +9,7 @@
 #include "shader.h"
 #include "sprite.h"
 #include "vertex.h"
+#include "window.h"
 
 Sprite::Sprite() {
     // Set up the default shader for the object
@@ -50,13 +51,13 @@ Sprite::Sprite() {
     glBindVertexArray(0);
 }
 
-void Sprite::render(Scene* scene) {
+void Sprite::render(Window* window, Scene* scene) {
 
     // Make our vertex array active
     glBindVertexArray(this->vao);
         // Tell the renderer to use our shader program when rendering our object
         glUseProgram(this->shader->program_id);
-            this->bindMatrixData(scene, M_PROJECTION|M_VIEW|M_MODEL);
+            this->bindMatrixData(window, scene, M_PROJECTION|M_VIEW|M_MODEL);
 
             // Bind the texture data
             glActiveTexture(GL_TEXTURE0);

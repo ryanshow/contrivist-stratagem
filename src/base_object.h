@@ -19,6 +19,7 @@
 #define M_MODEL      4
 
 class Scene;
+class Window;
 
 class BaseObject {
     public:
@@ -28,8 +29,8 @@ class BaseObject {
         BaseObject();
 
         void bindBufferData();
-        void bindMatrixData(Scene *scene, const unsigned char bind_mask);
-        virtual void render(Scene* scene);
+        void bindMatrixData(Window* window, Scene *scene, const unsigned char bind_mask);
+        virtual void render(Window* window, Scene* scene);
         void setVertices(Vertex* vert_list, int vert_count);
         void setIndices(int* index_list, int index_count);
 
@@ -45,7 +46,7 @@ class BaseObject {
         // Information about the model's vertices/indices
         std::vector<Vertex> vertex_list;
         std::vector<GLushort> index_list;
-        GLuint vao, vbo_vertices, vbo_indices;
+        GLuint vao, vbo, ibo, ubo;
         GLenum draw_method;
 };
 

@@ -29,7 +29,6 @@ Shader::Shader(const ShaderTypeNameMap &shader_names) {
         ShaderTypeName shader_pair(shader_type_name.first, shader_type_name.second);
         shader_id = this->addShader(shader_pair);
         glAttachShader(this->program_id, shader_id);
-
     }
 
     glLinkProgram(this->program_id);
@@ -56,7 +55,7 @@ Shader::Shader(const ShaderTypeNameMap &shader_names) {
 GLuint Shader::addShader(ShaderTypeName &shader_type_name) {
 
     // Only bother creating this shader if we haven't compiled it before
-    if (this->shader_ids.count(shader_type_name) == 0) {
+    if (Shader::shader_ids.count(shader_type_name) == 0) {
 
         // Create the new shader id
         GLuint shader_id = glCreateShader(shader_type_name.first);

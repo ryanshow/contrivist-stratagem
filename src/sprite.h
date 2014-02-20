@@ -7,10 +7,12 @@
 
 #include "base_object.h"
 
+class Window;
+
 class Sprite : public BaseObject {
     public:
         Sprite();
-        void render(Scene* scene);
+        void render(Window* window, Scene* scene);
     private:
         std::vector<unsigned char> image;
         GLuint textureId;

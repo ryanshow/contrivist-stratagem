@@ -11,22 +11,19 @@
 
 class BaseObject;
 class Grid;
+class Window;
 
 class Scene {
     public:
         static std::vector<Scene> scenes;
 
-        glm::mat4 view_matrix;
-        glm::mat4 proj_matrix;
-        int width, height;
         GLfloat clear_color_rgba[5];
 
-        static Scene* addScene(int width, int height);
+        static Scene* addScene();
 
-        Scene(int width, int height);
+        Scene();
         void addObject(BaseObject* object);
-        void render();
-        void resizeCallback(int width, int height);
+        void render(Window* window);
     private:
         Grid* grid;
         std::vector<BaseObject*> objects;

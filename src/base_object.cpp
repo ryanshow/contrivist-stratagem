@@ -5,6 +5,7 @@
 
 #include "base_object.h"
 #include "scene.h"
+#include "window.h"
 
 BaseObject::BaseObject() {
 
@@ -28,14 +29,14 @@ BaseObject::BaseObject() {
     // Create the Vertex Array Object
     glGenVertexArrays(1, &this->vao);
     // Create the Vertex Buffer Object
-    glGenBuffers(1, &this->vbo_vertices);
+    glGenBuffers(1, &this->vbo);
     // Create the Index Buffer Object
-    glGenBuffers(1, &this->vbo_indices);
+    glGenBuffers(1, &this->ibo);
 
     // VAOs allow us to declare all of these attrib pointers while the VAO is
     // bound. This reduces clutter in the render member function.
     glBindVertexArray(this->vao);
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo_vertices);
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
             // Position (XYZ)
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(
@@ -79,13 +80,13 @@ BaseObject::BaseObject() {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // Bind the index buffer to the VAO, since that's what we'll use to render
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo_indices);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
     glBindVertexArray(0);
 }
 
 void BaseObject::bindBufferData() {
     // Bind the vertex buffer data
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo_vertices);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
         glBufferData(
             GL_ARRAY_BUFFER,
             sizeof(Vertex)*this->vertex_list.size(),
@@ -94,7 +95,7 @@ void BaseObject::bindBufferData() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Bind the Index buffer data
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->vbo_indices);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             sizeof(GLuint)*this->index_list.size(),
@@ -103,14 +104,14 @@ void BaseObject::bindBufferData() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
+void BaseObject::bindMatrixData(Window* window, Scene *scene, const unsigned char bind_mask) {
     if (bind_mask & M_PROJECTION) {
         // Bind the "proj_matrix" variable in our C++ program to the "Projection" variable in the shader
         glUniformMatrix4fv(
             glGetUniformLocation(this->shader->program_id, "gProjection"),
             1,
             false,
-            glm::value_ptr(scene->proj_matrix));
+            glm::value_ptr(window->proj_matrix));
     }
     if (bind_mask & M_VIEW) {
         // Bind the "view_matrix" variable in our C++ program to the "View" variable in the shader
@@ -118,7 +119,7 @@ void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
             glGetUniformLocation(this->shader->program_id, "gView"),
             1,
             false,
-            glm::value_ptr(scene->view_matrix));
+            glm::value_ptr(window->view_matrix));
     }
     if (bind_mask & M_MODEL) {
         // Bind the "model_matrix" variable in our C++ program to the "Model" variable in the shader
@@ -129,13 +130,14 @@ void BaseObject::bindMatrixData(Scene *scene, const unsigned char bind_mask) {
             glm::value_ptr(this->getModelMatrix()));
     }
 }
-void BaseObject::render(Scene* scene) {
+
+void BaseObject::render(Window* window, Scene* scene) {
 
     // Make our vertex array active
     glBindVertexArray(this->vao);
         // Tell the renderer to use our shader program when rendering our object
         glUseProgram(this->shader->program_id);
-            this->bindMatrixData(scene, M_PROJECTION|M_VIEW|M_MODEL);
+            this->bindMatrixData(window, scene, M_PROJECTION|M_VIEW|M_MODEL);
 
             // Render the vao on the screen using "GL_LINE_LOOP"
             glDrawElements(

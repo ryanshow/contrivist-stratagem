@@ -8,6 +8,7 @@
 
 #include "grid.h"
 #include "scene.h"
+#include "window.h"
 
 Grid::Grid() {
     this->setStep(20, 0.5f);
@@ -34,13 +35,13 @@ void Grid::setStep(int size, float step) {
     this->bindBufferData();
 }
 
-void Grid::render(Scene* scene) {
+void Grid::render(Window* window, Scene* scene) {
     // Make our vertex array active
     glBindVertexArray(this->vao);
         // Tell the renderer to use our shader program when rendering our object
         glUseProgram(this->shader->program_id);
             // Bind the Projection/View matricies to the shader
-            this->bindMatrixData(scene, M_PROJECTION|M_VIEW);
+            this->bindMatrixData(window, scene, M_PROJECTION|M_VIEW);
 
             // Draw the gridlines. Starting at the center and going out in both directions.
             this->pushModelMatrix(); // Push 1
@@ -49,7 +50,7 @@ void Grid::render(Scene* scene) {
                 this->pushModelMatrix(); // Push 2
                 for (int j=0; j<int(this->size/this->step)/2; j++) {
                     this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(0.0f, 0.0f, i*this->step)));
-                    this->bindMatrixData(scene, M_MODEL);
+                    this->bindMatrixData(window, scene, M_MODEL);
                     // Render the vao on the screen
                     glDrawElements(
                         this->draw_method,
@@ -68,7 +69,7 @@ void Grid::render(Scene* scene) {
                 this->pushModelMatrix(); // Push 2
                 for (int j=0; j<int(this->size/this->step)/2; j++) {
                     this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(0.0f, 0.0f, i*this->step)));
-                    this->bindMatrixData(scene, M_MODEL);
+                    this->bindMatrixData(window, scene, M_MODEL);
                     // Render the vao on the screen
                     glDrawElements(
                         this->draw_method,
@@ -89,7 +90,7 @@ void Grid::render(Scene* scene) {
             // Draw the centerlines
             this->pushModelMatrix(); // Push 1
             this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
-            this->bindMatrixData(scene, M_MODEL);
+            this->bindMatrixData(window, scene, M_MODEL);
             glDrawElements(
                 this->draw_method,
                 2,
@@ -100,7 +101,7 @@ void Grid::render(Scene* scene) {
             this->pushModelMatrix(); // Push 1
             this->setModelMatrix(glm::rotate(this->getModelMatrix(), float(M_PI/2), glm::vec3(0.0f, -1.0f, 0.0f)));
             this->setModelMatrix(glm::translate(this->getModelMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
-            this->bindMatrixData(scene, M_MODEL);
+            this->bindMatrixData(window, scene, M_MODEL);
             glDrawElements(
                 this->draw_method,
                 2,

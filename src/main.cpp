@@ -44,12 +44,12 @@ int main(int argc, char **argv)
     chaiscript::ChaiScript chai(chaiscript::Std_Lib::library());
 
     const char* window_title = fmt::c_str(fmt::Format("Contravist Stratagem v{0}.{1} ({2})") << CS_VERSION_MAJOR << CS_VERSION_MINOR << GIT_SHA1);
-    Window *window = Window::createWindow(window_title, 800, 600);
+    Window *window = Window::createWindow(window_title, glm::uvec2(800, 600));
 
     // Enable VSync
     glfwSwapInterval(1);
 
-    Scene* scene = Scene::addScene(800, 600);
+    Scene* scene = Scene::addScene();
     scene->addObject(new Sprite());
     window->addScene(scene);
 
