@@ -11,6 +11,7 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <format.h>
 
@@ -22,6 +23,7 @@
 
 //Initialize the static class variables
 std::map<GLFWwindow*,Window> Window::windows = std::map<GLFWwindow*,Window>{};
+GLuint Window::ubo_binding_index_count = 0;
 
 Window::Window(GLFWwindow* window, glm::uvec2 size) {
     if (!window) {
@@ -50,6 +52,17 @@ Window::Window(GLFWwindow* window, glm::uvec2 size) {
             glm::vec3(0.0f, 1.0f, 0.0f));    // The eye's orientation vector (which way is up)
     this->proj_matrix = glm::mat4(1.0f);
     this->proj_matrix *= glm::perspective(45.0f, float(size.x)/float(size.y), 0.1f, 100.0f);
+
+    // Create the uniform buffer object that will hold this window's variables
+    // that we need to pass to the shader.
+    glGenBuffers(1, &this->ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STATIC_DRAW);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(this->proj_matrix));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(this->view_matrix));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    this->ubo_binding_index = Window::createUniformBindingIndex();
 }
 
 GLFWwindow* Window::getWindow() {
@@ -63,6 +76,10 @@ void Window::resizeCallback(GLFWwindow *glfwWindow, int width, int height) {
 
     window->proj_matrix = glm::mat4(1.0f);
     window->proj_matrix *= glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, window->ubo);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(window->proj_matrix));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Window::addScene(Scene *scene) {
@@ -118,4 +135,8 @@ glm::uvec2 Window::getSize() {
 void Window::setSize(glm::uvec2 size) {
     glfwSetWindowSize(this->window, size.x, size.y);
     // The class member size variables will be set in the callback
+}
+
+GLuint Window::createUniformBindingIndex() {
+    return Window::ubo_binding_index_count++;
 }

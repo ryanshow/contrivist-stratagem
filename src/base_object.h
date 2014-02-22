@@ -47,6 +47,7 @@ class BaseObject {
         std::vector<Vertex> vertex_list;
         std::vector<GLushort> index_list;
         GLuint vao, vbo, ibo, ubo;
+        GLuint ubo_binding_index;
         GLenum draw_method;
 };
 

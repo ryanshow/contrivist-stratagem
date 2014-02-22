@@ -3,34 +3,38 @@
 layout (points) in;
 layout (triangle_strip,max_vertices=4) out;
 
-uniform mat4 gProjection;
-uniform mat4 gView;
-uniform mat4 gModel;
+layout (std140) uniform Window {
+    mat4 projMatrix;
+    mat4 viewMatrix;
+} gWindow;
 
-uniform uvec2 gTexSize;
+layout (std140) uniform Model {
+    mat4 modelMatrix;
+    uvec2 texSize;
+} gModel;
 
 in VertexData {
-    vec3 gPosition;
-    vec3 gNormal;
-    vec4 gColor;
-    vec2 gTexture;
-} inData[];
+    vec3 position;
+    vec3 normal;
+    vec4 color;
+    vec2 texture;
+} gInData[];
 
 out VertexData {
-    vec3 gPosition;
-    vec3 gNormal;
-    vec4 gColor;
-    vec2 gTexture;
-} outData;
+    vec3 position;
+    vec3 normal;
+    vec4 color;
+    vec2 texture;
+} gOutData;
 
 void main() {
-    vec3 camPos = -gView[3].xyz * mat3(gView);
-    vec3 vertPos = inData[0].gPosition.xyz;
-    float ratio = float(gTexSize.x)/float(gTexSize.y);
+    vec3 camPos = -gWindow.viewMatrix[3].xyz * mat3(gWindow.viewMatrix);
+    vec3 vertPos = gInData[0].position.xyz;
+    float ratio = float(gModel.texSize.x)/float(gModel.texSize.y);
 
-    outData.gPosition = inData[0].gPosition;
-    outData.gNormal = inData[0].gNormal;
-    outData.gColor = inData[0].gColor;
+    gOutData.position = gInData[0].position;
+    gOutData.normal = gInData[0].normal;
+    gOutData.color = gInData[0].color;
 
     vec3 toCamVec = normalize(camPos - vertPos);
     vec3 upVec = vec3(0.0, 1.0, 0.0);
@@ -39,24 +43,24 @@ void main() {
     vec3 rightVec = normalize(cross(toCamVec, upVec));
 
     vertPos -= (rightVec * ratio / 2);
-    gl_Position = gProjection * ((gView * gModel) * vec4(vertPos, 1.0));
-    outData.gTexture = vec2(0.0, 0.0);
+    gl_Position = gWindow.projMatrix * ((gWindow.viewMatrix * gModel.modelMatrix) * vec4(vertPos, 1.0));
+    gOutData.texture = vec2(0.0, 0.0);
     EmitVertex();
 
     vertPos.y += 1.0;
-    gl_Position = gProjection * ((gView * gModel) * vec4(vertPos, 1.0));
-    outData.gTexture = vec2(0.0, 1.0);
+    gl_Position = gWindow.projMatrix * ((gWindow.viewMatrix * gModel.modelMatrix) * vec4(vertPos, 1.0));
+    gOutData.texture = vec2(0.0, 1.0);
     EmitVertex();
 
     vertPos.y -= 1.0;
     vertPos += (rightVec * ratio);
-    gl_Position = gProjection * ((gView * gModel) * vec4(vertPos, 1.0));
-    outData.gTexture = vec2(1.0, 0.0);
+    gl_Position = gWindow.projMatrix * ((gWindow.viewMatrix * gModel.modelMatrix) * vec4(vertPos, 1.0));
+    gOutData.texture = vec2(1.0, 0.0);
     EmitVertex();
 
     vertPos.y += 1.0;
-    gl_Position = gProjection * ((gView * gModel) * vec4(vertPos, 1.0));
-    outData.gTexture = vec2(1.0, 1.0);
+    gl_Position = gWindow.projMatrix * ((gWindow.viewMatrix * gModel.modelMatrix) * vec4(vertPos, 1.0));
+    gOutData.texture = vec2(1.0, 1.0);
     EmitVertex();
 
     EndPrimitive();

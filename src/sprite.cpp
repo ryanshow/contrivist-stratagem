@@ -49,6 +49,10 @@ Sprite::Sprite() {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->textureSize.x, this->textureSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(this->image[0]));
         glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::uvec2), glm::value_ptr(this->textureSize));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Sprite::render(Window* window, Scene* scene) {
@@ -63,7 +67,6 @@ void Sprite::render(Window* window, Scene* scene) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, this->textureId);
             glUniform1i(glGetUniformLocation(this->shader->program_id, "gColorMap"), 0);
-            glUniform2uiv(glGetUniformLocation(this->shader->program_id, "gTexSize"), 1, glm::value_ptr(this->textureSize));
 
             // Render the vao on the screen using "GL_LINE_LOOP"
             glDrawElements(

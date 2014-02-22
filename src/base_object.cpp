@@ -26,12 +26,15 @@ BaseObject::BaseObject() {
     // Set the default draw method
     this->draw_method = GL_LINES;
 
+    // TODO: Combine these into a single array and generate them at once
     // Create the Vertex Array Object
     glGenVertexArrays(1, &this->vao);
     // Create the Vertex Buffer Object
     glGenBuffers(1, &this->vbo);
     // Create the Index Buffer Object
     glGenBuffers(1, &this->ibo);
+    // Create the Uniform Buffer Object
+    glGenBuffers(1, &this->ubo);
 
     // VAOs allow us to declare all of these attrib pointers while the VAO is
     // bound. This reduces clutter in the render member function.
@@ -82,6 +85,18 @@ BaseObject::BaseObject() {
         // Bind the index buffer to the VAO, since that's what we'll use to render
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ibo);
     glBindVertexArray(0);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) + sizeof(glm::uvec2), NULL, GL_STATIC_DRAW);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(this->getModelMatrix()));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    this->ubo_binding_index = Window::createUniformBindingIndex();
+    glUniformBlockBinding(
+        this->shader->program_id,
+        glGetUniformBlockIndex(this->shader->program_id, "Model"),
+        this->ubo_binding_index);
+
 }
 
 void BaseObject::bindBufferData() {
@@ -105,29 +120,26 @@ void BaseObject::bindBufferData() {
 }
 
 void BaseObject::bindMatrixData(Window* window, Scene *scene, const unsigned char bind_mask) {
-    if (bind_mask & M_PROJECTION) {
-        // Bind the "proj_matrix" variable in our C++ program to the "Projection" variable in the shader
-        glUniformMatrix4fv(
-            glGetUniformLocation(this->shader->program_id, "gProjection"),
-            1,
-            false,
-            glm::value_ptr(window->proj_matrix));
-    }
-    if (bind_mask & M_VIEW) {
-        // Bind the "view_matrix" variable in our C++ program to the "View" variable in the shader
-        glUniformMatrix4fv(
-            glGetUniformLocation(this->shader->program_id, "gView"),
-            1,
-            false,
-            glm::value_ptr(window->view_matrix));
+    if (bind_mask & M_PROJECTION || bind_mask & M_VIEW) {
+        glUniformBlockBinding(
+            this->shader->program_id,
+            glGetUniformBlockIndex(this->shader->program_id, "Window"),
+            window->ubo_binding_index);
+        glBindBufferRange(GL_UNIFORM_BUFFER, window->ubo_binding_index, window->ubo, 0, sizeof(glm::mat4) * 2);
     }
     if (bind_mask & M_MODEL) {
-        // Bind the "model_matrix" variable in our C++ program to the "Model" variable in the shader
-        glUniformMatrix4fv(
-            glGetUniformLocation(this->shader->program_id, "gModel"),
-            1,
-            false,
-            glm::value_ptr(this->getModelMatrix()));
+        // FIXME: This should only occur when the model is transformed
+        glBindBuffer(GL_UNIFORM_BUFFER, this->ubo);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(this->getModelMatrix()));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        // FIXME: It should not be necessary to bind this every frame.. find out why it's needed here.
+        glUniformBlockBinding(
+            this->shader->program_id,
+            glGetUniformBlockIndex(this->shader->program_id, "Model"),
+            this->ubo_binding_index);
+
+        glBindBufferRange(GL_UNIFORM_BUFFER, this->ubo_binding_index, this->ubo, 0, sizeof(glm::mat4));
     }
 }
 

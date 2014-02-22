@@ -3,31 +3,37 @@
 layout (lines) in;
 layout (line_strip,max_vertices=2) out;
 
-uniform mat4 gProjection;
-uniform mat4 gView;
-uniform mat4 gModel;
+layout (std140) uniform Window {
+    mat4 projMatrix;
+    mat4 viewMatrix;
+} gWindow;
+
+layout (std140) uniform Model {
+    mat4 modelMatrix;
+    uvec2 texSize;
+} gModel;
 
 in VertexData {
-    vec3 gPosition;
-    vec3 gNormal;
-    vec4 gColor;
-    vec2 gTexture;
-} inData[];
+    vec3 position;
+    vec3 normal;
+    vec4 color;
+    vec2 texture;
+} gInData[];
 
 out VertexData {
-    vec3 gPosition;
-    vec3 gNormal;
-    vec4 gColor;
-    vec2 gTexture;
-} outData;
+    vec3 position;
+    vec3 normal;
+    vec4 color;
+    vec2 texture;
+} gOutData;
 
 void main() {
     for (int i=0; i<gl_in.length(); i++) {
         gl_Position = gl_in[i].gl_Position.xyzw;
-        outData.gPosition = inData[i].gPosition;
-        outData.gNormal = inData[i].gNormal;
-        outData.gColor = inData[i].gColor;
-        outData.gTexture = inData[i].gTexture;
+        gOutData.position = gInData[i].position;
+        gOutData.normal = gInData[i].normal;
+        gOutData.color = gInData[i].color;
+        gOutData.texture = gInData[i].texture;
         EmitVertex();
     }
 
