@@ -14,9 +14,9 @@ class Sprite : public BaseObject {
         Sprite();
         void render(Window* window, Scene* scene);
     private:
-        std::vector<unsigned char> image;
-        GLuint textureId;
-        glm::uvec2 textureSize;
+        std::vector<unsigned char> mImageData;
+        GLuint mTextureId;
+        glm::uvec2 mTextureSize;
 };
 
 #endif

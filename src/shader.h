@@ -12,7 +12,7 @@ typedef std::pair<GLuint,const char*> ShaderTypeName;
 
 class Shader {
     public:
-        GLuint program_id;
+        GLuint mProgramId;
 
         static Shader* getShader(const ShaderTypeNameMap &shader_names);
 
@@ -20,8 +20,8 @@ class Shader {
         explicit Shader(const ShaderTypeNameMap &shader_names);
 
     private:
-        static std::map<ShaderTypeName,GLuint> shader_ids;
-        static std::map<ShaderTypeNameMap,Shader> shader_programs;
+        static std::map<ShaderTypeName,GLuint> msShaderIdMap;
+        static std::map<ShaderTypeNameMap,Shader> msShaderProgramMap;
 
         GLuint addShader(ShaderTypeName &shader_type_name);
         const char* loadSource(const char* file_name);

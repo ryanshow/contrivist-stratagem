@@ -11,28 +11,45 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "shader.h"
-#include "vertex.h"
+enum {
+    M_PROJECTION = 1,
+    M_VIEW = 2,
+    M_MODEL = 4
+};
 
-#define M_PROJECTION 1
-#define M_VIEW       2
-#define M_MODEL      4
+#include "shader.h"
 
 class Scene;
 class Window;
 
 class BaseObject {
-    public:
-        // The model's shader information
-        Shader *shader;
+    protected:
+        typedef struct {
+            glm::vec3 pos;
+            glm::vec3 nor;
+            glm::vec4 col;
+            glm::vec2 tx0;
+            glm::vec2 tx1;
+            glm::vec2 tx2;
+        } Vertex;
 
+        enum {
+            VERTEX,
+            INDEX,
+            UNIFORM
+        };
+
+    public:
         BaseObject();
+
+        // The model's shader information
+        Shader *mpShader;
 
         void bindBufferData();
         void bindMatrixData(Window* window, Scene *scene, const unsigned char bind_mask);
         virtual void render(Window* window, Scene* scene);
         void setVertices(Vertex* vert_list, int vert_count);
-        void setIndices(int* index_list, int index_count);
+        void setIndices(int* pIndexList, int indexCount);
 
         glm::mat4& getModelMatrix();
         void setModelMatrix(glm::mat4 matrix);
@@ -41,14 +58,14 @@ class BaseObject {
 
     protected:
         // The model's transformation matrix
-        std::vector<glm::mat4> model_matrix_stack;
+        std::vector<glm::mat4> mModelMatrixStack;
 
         // Information about the model's vertices/indices
-        std::vector<Vertex> vertex_list;
-        std::vector<GLushort> index_list;
-        GLuint vao, vbo, ibo, ubo;
-        GLuint ubo_binding_index;
-        GLenum draw_method;
+        std::vector<Vertex> mVertexList;
+        std::vector<GLushort> mIndexList;
+        GLuint *mpBufferObjects;
+        GLuint mVAO, mUBOBindingIndex;
+        GLenum mDrawMethod;
 };
 
 #endif

@@ -17,7 +17,7 @@ class Scene {
     public:
         static std::vector<Scene> scenes;
 
-        GLfloat clear_color_rgba[5];
+        glm::vec4 mClearColor;
 
         static Scene* addScene();
 
@@ -25,8 +25,8 @@ class Scene {
         void addObject(BaseObject* object);
         void render(Window* window);
     private:
-        Grid* grid;
-        std::vector<BaseObject*> objects;
+        Grid* mpGrid;
+        std::vector<BaseObject*> mObjectList;
 };
 
 #endif

@@ -18,34 +18,31 @@ Scene* Scene::addScene() {
 }
 
 Scene::Scene() {
-    this->clear_color_rgba[0] = 0.3;
-    this->clear_color_rgba[1] = 0.3;
-    this->clear_color_rgba[2] = 0.3;
-    this->clear_color_rgba[3] = 1.0;
+    mClearColor = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
 
-    this->grid = new Grid();
+    mpGrid = new Grid();
 }
 
 void Scene::render(Window* window) {
     glClearColor(
-            this->clear_color_rgba[0],
-            this->clear_color_rgba[1],
-            this->clear_color_rgba[2],
-            this->clear_color_rgba[3]
+        mClearColor.r,
+        mClearColor.g,
+        mClearColor.b,
+        mClearColor.a
     );
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
     // Render the grid first so it doesn't render over scene objects
-    if (this->grid != nullptr) {
-        this->grid->render(window, this);
+    if (mpGrid != nullptr) {
+        mpGrid->render(window, this);
     }
 
-    for (BaseObject* obj : this->objects) {
+    for (BaseObject* obj : mObjectList) {
         obj->render(window, this);
     }
 }
 
 void Scene::addObject(BaseObject* object) {
-    this->objects.push_back(object);
+    mObjectList.push_back(object);
 }

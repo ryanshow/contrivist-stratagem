@@ -11,10 +11,10 @@ class Scene;
 
 class Window {
     public:
-        glm::mat4 view_matrix;
-        glm::mat4 proj_matrix;
-        GLuint ubo;
-        GLuint ubo_binding_index;
+        glm::mat4 mViewMatrix;
+        glm::mat4 mProjMatrix;
+        GLuint mUBO;
+        GLuint mUBOBindingIndex;
 
         Window() = default;
         Window(GLFWwindow *window, glm::uvec2 size);
@@ -27,12 +27,13 @@ class Window {
         static GLuint createUniformBindingIndex();
 
     private:
-        Scene* scene;
-        GLFWwindow *window;
-        glm::uvec2 size;
+        Scene* mpScene;
+        GLFWwindow *mpWindow;
+        glm::uvec2 mSize;
 
-        static std::map<GLFWwindow*,Window> windows;
-        static GLuint ubo_binding_index_count;
+        static std::map<GLFWwindow*,Window> msWindows;
+        static GLuint msUBOBindingIndexCount;
+
         static void resizeCallback(GLFWwindow* window, int width, int height);
 };
 
