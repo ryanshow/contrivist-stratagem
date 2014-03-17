@@ -21,7 +21,7 @@ BaseObject::BaseObject() {
     matrix = glm::rotate(matrix, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     matrix = glm::translate(matrix, glm::vec3(0.0f, 0.0f, 0.0f));
     matrix = glm::scale(matrix, glm::vec3(1.0f, 1.0f, 1.0f));
-    mModelMatrixStack.push_back(matrix);
+    mModelMatrixStack.setMatrix(matrix);
 
     // Set the default draw method
     mDrawMethod = GL_LINES;
@@ -85,7 +85,7 @@ BaseObject::BaseObject() {
 
     glBindBuffer(GL_UNIFORM_BUFFER, mpBufferObjects[UNIFORM]);
         glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) + sizeof(glm::uvec2), NULL, GL_STATIC_DRAW);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(this->getModelMatrix()));
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(mModelMatrixStack.getMatrix()));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     mUBOBindingIndex = Window::createUniformBindingIndex();
@@ -127,7 +127,7 @@ void BaseObject::bindMatrixData(Window* window, Scene *scene, const unsigned cha
     if (bind_mask & M_MODEL) {
         // FIXME: This should only occur when the model is transformed
         glBindBuffer(GL_UNIFORM_BUFFER, mpBufferObjects[UNIFORM]);
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(this->getModelMatrix()));
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(mModelMatrixStack.getMatrix()));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         // FIXME: It should not be necessary to bind this every frame.. find out why it's needed here.
@@ -170,20 +170,4 @@ void BaseObject::setIndices(int* pIndexList, int indexCount) {
     for (int i=0; i<indexCount; i++) {
         mIndexList.push_back(pIndexList[i]);
     }
-}
-
-glm::mat4& BaseObject::getModelMatrix() {
-    return mModelMatrixStack.back();
-}
-
-void BaseObject::setModelMatrix(glm::mat4 matrix) {
-    mModelMatrixStack.back() = matrix;
-}
-
-void BaseObject::pushModelMatrix() {
-    mModelMatrixStack.push_back(mModelMatrixStack.back());
-}
-
-void BaseObject::popModelMatrix() {
-    mModelMatrixStack.pop_back();
 }

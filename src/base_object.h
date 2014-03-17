@@ -17,6 +17,7 @@ enum {
     M_MODEL = 4
 };
 
+#include "matrix.h"
 #include "shader.h"
 
 class Scene;
@@ -44,6 +45,7 @@ class BaseObject {
 
         // The model's shader information
         Shader *mpShader;
+        MatrixStack mModelMatrixStack;
 
         void bindBufferData();
         void bindMatrixData(Window* window, Scene *scene, const unsigned char bind_mask);
@@ -51,15 +53,7 @@ class BaseObject {
         void setVertices(Vertex* vert_list, int vert_count);
         void setIndices(int* pIndexList, int indexCount);
 
-        glm::mat4& getModelMatrix();
-        void setModelMatrix(glm::mat4 matrix);
-        void pushModelMatrix();
-        void popModelMatrix();
-
     protected:
-        // The model's transformation matrix
-        std::vector<glm::mat4> mModelMatrixStack;
-
         // Information about the model's vertices/indices
         std::vector<Vertex> mVertexList;
         std::vector<GLushort> mIndexList;
