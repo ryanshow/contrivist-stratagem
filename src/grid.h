@@ -9,12 +9,12 @@ class Window;
 class Grid : public BaseObject {
     public:
         Grid();
-        void render(Window *window, Scene* scene);
-        void setStep(int size, float step);
+        void    render(const Window & window, const Scene & scene);
+        void    setStep(int size, float step);
 
     private:
-        int size;
-        float step;
+        int     size;
+        float   step;
 };
 
 #endif

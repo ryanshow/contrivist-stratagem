@@ -1,4 +1,3 @@
-#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
 #include "format.h"
@@ -96,7 +95,7 @@ BaseObject::BaseObject() {
 
 }
 
-void BaseObject::bindBufferData() {
+void BaseObject::bindBufferData() const {
     // Bind the vertex buffer data
     glBindBuffer(GL_ARRAY_BUFFER, mpBufferObjects[VERTEX]);
         glBufferData(
@@ -116,13 +115,13 @@ void BaseObject::bindBufferData() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void BaseObject::bindMatrixData(Window* window, Scene *scene, const unsigned char bind_mask) {
+void BaseObject::bindMatrixData(const Window & window, const Scene & scene, const unsigned char bind_mask) const {
     if (bind_mask & M_PROJECTION || bind_mask & M_VIEW) {
         glUniformBlockBinding(
             mpShader->mProgramId,
             glGetUniformBlockIndex(mpShader->mProgramId, "Window"),
-            window->mUBOBindingIndex);
-        glBindBufferRange(GL_UNIFORM_BUFFER, window->mUBOBindingIndex, window->mUBO, 0, sizeof(glm::mat4) * 2);
+            window.mUBOBindingIndex);
+        glBindBufferRange(GL_UNIFORM_BUFFER, window.mUBOBindingIndex, window.mUBO, 0, sizeof(glm::mat4) * 2);
     }
     if (bind_mask & M_MODEL) {
         // FIXME: This should only occur when the model is transformed
@@ -140,7 +139,7 @@ void BaseObject::bindMatrixData(Window* window, Scene *scene, const unsigned cha
     }
 }
 
-void BaseObject::render(Window* window, Scene* scene) {
+void BaseObject::render(const Window & window, const Scene & scene) {
 
     // Make our vertex array active
     glBindVertexArray(mVAO);

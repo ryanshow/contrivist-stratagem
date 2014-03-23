@@ -77,6 +77,9 @@ if (HAVE_STD_CPP11_FLAG)
     set_target_properties (cs PROPERTIES COMPILE_FLAGS "-std=c++11")
 endif ()
 
+add_definitions(-DGLM_FORCE_RADIANS)
+add_definitions(-DGLFW_INCLUDE_GLCOREARB)
+
 target_link_libraries (cs format glfw ${GLFW_LIBRARIES})
 
 add_dependencies (cs version)

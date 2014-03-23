@@ -1,16 +1,16 @@
 
 // OpenGL related headers
-#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
 // Math Utilities
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+/*
 #include <chaiscript/chaiscript.hpp>
 #include <chaiscript/chaiscript_stdlib.hpp>
+*/
 
 // String formatting library
 #include <format.h>
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     }
 
     // Initialize Chaiscript engine
-    chaiscript::ChaiScript chai(chaiscript::Std_Lib::library());
+    // chaiscript::ChaiScript chai(chaiscript::Std_Lib::library());
 
     const char* window_title = fmt::c_str(fmt::Format("Contravist Stratagem v{0}.{1} ({2})") << CS_VERSION_MAJOR << CS_VERSION_MINOR << GIT_SHA1);
     Window *window = Window::createWindow(window_title, glm::uvec2(800, 600));

@@ -5,10 +5,8 @@
 #include <utility>
 
 // OpenGL related headers
-#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -89,7 +87,7 @@ void Window::addScene(Scene *pScene) {
 void Window::refresh() {
     glfwSetTime(0.0f);
 
-    mpScene->render(this);
+    mpScene->render(*this);
 
     /* Swap buffers, poll events */
     glfwSwapBuffers(mpWindow);

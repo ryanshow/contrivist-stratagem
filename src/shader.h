@@ -14,17 +14,17 @@ class Shader {
     public:
         GLuint mProgramId;
 
-        static Shader* getShader(const ShaderTypeNameMap &shader_names);
+                    Shader(){};
+        explicit    Shader(const ShaderTypeNameMap &shader_names);
 
-        Shader(){};
-        explicit Shader(const ShaderTypeNameMap &shader_names);
+        static Shader *     getShader(const ShaderTypeNameMap &shader_names);
 
     private:
-        static std::map<ShaderTypeName,GLuint> msShaderIdMap;
-        static std::map<ShaderTypeNameMap,Shader> msShaderProgramMap;
+        static std::map<ShaderTypeName,GLuint>      msShaderIdMap;
+        static std::map<ShaderTypeNameMap,Shader>   msShaderProgramMap;
 
-        GLuint addShader(ShaderTypeName &shader_type_name);
-        const char* loadSource(const char* file_name);
+        GLuint          addShader(const ShaderTypeName & shader_type_name);
+        const char *    loadSource(const char * file_name);
 };
 
 #endif

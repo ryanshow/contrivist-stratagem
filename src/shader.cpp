@@ -9,7 +9,6 @@
 
 #include <format.h>
 
-#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
 #include "shader.h"
@@ -19,7 +18,7 @@ std::map<ShaderTypeName,GLuint> Shader::msShaderIdMap = std::map<ShaderTypeName,
 std::map<ShaderTypeNameMap,Shader> Shader::msShaderProgramMap = std::map<ShaderTypeNameMap,Shader>{};
 
 
-Shader::Shader(const ShaderTypeNameMap &shader_names) {
+Shader::Shader(const ShaderTypeNameMap & shader_names) {
 
     // Create the shader program and grab it's ID
     mProgramId = glCreateProgram();
@@ -52,7 +51,7 @@ Shader::Shader(const ShaderTypeNameMap &shader_names) {
 }
 
 
-GLuint Shader::addShader(ShaderTypeName &shader_type_name) {
+GLuint Shader::addShader(const ShaderTypeName & shader_type_name) {
 
     // Only bother creating this shader if we haven't compiled it before
     if (Shader::msShaderIdMap.count(shader_type_name) == 0) {

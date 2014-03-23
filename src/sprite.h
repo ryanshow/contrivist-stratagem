@@ -1,7 +1,6 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#define GLM_FORCE_RADIANS 1
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -9,14 +8,21 @@
 
 class Window;
 
+struct SpriteAnim {
+  glm::uvec2 frameStartPos;
+  unsigned short frameStride;
+  unsigned short frameCount;
+};
+
 class Sprite : public BaseObject {
     public:
         Sprite();
-        void render(Window* window, Scene* scene);
+        void render(const Window & window, const Scene & scene);
     private:
-        std::vector<unsigned char> mImageData;
+        std::vector<unsigned char> mTextureData;
         GLuint mTextureId;
         glm::uvec2 mTextureSize;
+        std::map<std::string, SpriteAnim> mAnimationMap;
 };
 
 #endif

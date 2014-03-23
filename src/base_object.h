@@ -3,10 +3,8 @@
 
 #include <vector>
 
-#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
-#define GLM_FORCE_RADIANS 1
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -43,23 +41,23 @@ class BaseObject {
     public:
         BaseObject();
 
-        // The model's shader information
-        Shader *mpShader;
-        MatrixStack mModelMatrixStack;
+        Shader          *mpShader;
+        MatrixStack     mModelMatrixStack;
 
-        void bindBufferData();
-        void bindMatrixData(Window* window, Scene *scene, const unsigned char bind_mask);
-        virtual void render(Window* window, Scene* scene);
-        void setVertices(Vertex* vert_list, int vert_count);
-        void setIndices(int* pIndexList, int indexCount);
+        void            bindBufferData() const;
+        void            bindMatrixData(const Window & window, const Scene & scene, const unsigned char bind_mask) const;
+        virtual void    render(const Window & window, const Scene & scene);
+        void            setVertices(Vertex* vert_list, int vert_count);
+        void            setIndices(int* pIndexList, int indexCount);
 
     protected:
         // Information about the model's vertices/indices
-        std::vector<Vertex> mVertexList;
-        std::vector<GLushort> mIndexList;
-        GLuint *mpBufferObjects;
-        GLuint mVAO, mUBOBindingIndex;
-        GLenum mDrawMethod;
+        std::vector<Vertex>     mVertexList;
+        std::vector<GLushort>   mIndexList;
+        GLuint *                mpBufferObjects;
+        GLuint                  mVAO;
+        GLuint                  mUBOBindingIndex;
+        GLenum                  mDrawMethod;
 };
 
 #endif

@@ -1,6 +1,5 @@
 #include <vector>
 
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -23,7 +22,7 @@ Scene::Scene() {
     mpGrid = new Grid();
 }
 
-void Scene::render(Window* window) {
+void Scene::render(const Window & window) {
     glClearColor(
         mClearColor.r,
         mClearColor.g,
@@ -35,11 +34,11 @@ void Scene::render(Window* window) {
 
     // Render the grid first so it doesn't render over scene objects
     if (mpGrid != nullptr) {
-        mpGrid->render(window, this);
+        mpGrid->render(window, *this);
     }
 
     for (BaseObject* obj : mObjectList) {
-        obj->render(window, this);
+        obj->render(window, *this);
     }
 }
 

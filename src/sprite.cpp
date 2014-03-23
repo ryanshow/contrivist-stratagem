@@ -1,6 +1,5 @@
 
 // OpenGL related headers
-#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 
 #include "format.h"
@@ -32,7 +31,7 @@ Sprite::Sprite() {
     this->bindBufferData();
 
     // Load up the image
-    unsigned int error = lodepng::decode(mImageData, mTextureSize[0], mTextureSize[1], "assets/images/black_mage.png");
+    unsigned int error = lodepng::decode(mTextureData, mTextureSize[0], mTextureSize[1], "assets/images/black_mage.png");
     if (error != 0) {
         fmt::Print("Error: {0}\n") << lodepng_error_text(error);
     }
@@ -45,7 +44,7 @@ Sprite::Sprite() {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mTextureSize.x, mTextureSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(mImageData[0]));
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mTextureSize.x, mTextureSize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(mTextureData[0]));
         glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 
@@ -54,7 +53,7 @@ Sprite::Sprite() {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Sprite::render(Window* window, Scene* scene) {
+void Sprite::render(const Window & window, const Scene & scene) {
 
     // Make our vertex array active
     glBindVertexArray(mVAO);
