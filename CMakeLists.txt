@@ -47,12 +47,6 @@ add_subdirectory (extern/glfw3)
 SET(freetype-gl_BUILD_DEMOS OFF CACHE BOOK "Build the freetype-gl example programs")
 add_subdirectory (extern/freetype-gl)
 
-# Compile Chaiscript
-SET(BUILD_MODULES OFF CACHE BOOL "Build Extra Modules")
-SET(BUILD_SAMPLES OFF CACHE BOOL "Build Samples Folder")
-SET(BUILD_TESTING OFF CACHE BOOL "Build Unit Tests")
-add_subdirectory (extern/chaiscript)
-
 # Compile Format
 add_subdirectory (extern/format)
 
@@ -61,8 +55,6 @@ include_directories (
     ${PROJECT_SOURCE_DIR}/extern/format
     ${PROJECT_SOURCE_DIR}/extern/glfw3/include
     ${PROJECT_SOURCE_DIR}/extern/glm
-    ${PROJECT_SOURCE_DIR}/extern/gli
-    ${PROJECT_SOURCE_DIR}/extern/chaiscript/include
     ${PROJECT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
 )
@@ -78,7 +70,7 @@ if (HAVE_STD_CPP11_FLAG)
 endif ()
 
 add_definitions(-DGLM_FORCE_RADIANS)
-add_definitions(-DGLFW_INCLUDE_GLCOREARB)
+add_definitions(-DGL_GLEXT_PROTOTYPES)
 
 target_link_libraries (cs format glfw ${GLFW_LIBRARIES})
 

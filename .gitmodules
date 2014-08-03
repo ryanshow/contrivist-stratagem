@@ -13,6 +13,3 @@
 [submodule "extern/chaiscript"]
 	path = extern/chaiscript
 	url = https://github.com/ChaiScript/ChaiScript.git
-[submodule "extern/gli"]
-	path = extern/gli
-	url = https://github.com/g-truc/gli.git
