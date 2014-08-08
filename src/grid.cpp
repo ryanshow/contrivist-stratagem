@@ -35,7 +35,7 @@ void Grid::setStep(int size, float step) {
     this->bindBufferData();
 }
 
-void Grid::render(const Window & window, const Scene & scene) {
+void Grid::render(const Window& window, const Scene& scene) {
     // Make our vertex array active
     glBindVertexArray(mVAO);
         // Tell the renderer to use our shader program when rendering our object

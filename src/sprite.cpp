@@ -21,7 +21,6 @@ Sprite::Sprite() {
     mDrawMethod = GL_POINTS;
 
     Vertex v[1] {};
-    v[0].pos.y = 0.0f;
     v[0].col = glm::vec4(1.0f);
 
     int i[1] {0};
@@ -31,7 +30,7 @@ Sprite::Sprite() {
     this->bindBufferData();
 
     // Load up the image
-    unsigned int error = lodepng::decode(mTextureData, mTextureSize[0], mTextureSize[1], "assets/images/black_mage.png");
+    unsigned int error = lodepng::decode(mTextureData, mTextureSize[0], mTextureSize[1], "assets/images/charmander.png");
     if (error != 0) {
         fmt::Print("Error: {0}\n") << lodepng_error_text(error);
     }
@@ -66,7 +65,7 @@ void Sprite::render(const Window & window, const Scene & scene) {
             glBindTexture(GL_TEXTURE_2D, mTextureId);
             glUniform1i(glGetUniformLocation(mpShader->mProgramId, "gColorMap"), 0);
 
-            // Render the vao on the screen using "GL_LINE_LOOP"
+            // Render the vao on the screen using "GL_POINTS"
             glDrawElements(
                 mDrawMethod,
                 mIndexList.size(),

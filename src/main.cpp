@@ -1,4 +1,3 @@
-
 // OpenGL related headers
 #include <GLFW/glfw3.h>
 
@@ -6,11 +5,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-/*
-#include <chaiscript/chaiscript.hpp>
-#include <chaiscript/chaiscript_stdlib.hpp>
-*/
 
 // String formatting library
 #include <format.h>
@@ -20,6 +14,7 @@
 
 // Other utility headers
 #include "grid.h"
+#include "octree.h"
 #include "scene.h"
 #include "sprite.h"
 #include "window.h"
@@ -40,9 +35,6 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    // Initialize Chaiscript engine
-    // chaiscript::ChaiScript chai(chaiscript::Std_Lib::library());
-
     const char* window_title = fmt::c_str(fmt::Format("Contravist Stratagem v{0}.{1} ({2})") << CS_VERSION_MAJOR << CS_VERSION_MINOR << GIT_SHA1);
     Window *window = Window::createWindow(window_title, glm::uvec2(800, 600));
 
@@ -51,6 +43,7 @@ int main(int argc, char **argv)
 
     Scene* scene = Scene::addScene();
     scene->addObject(new Sprite());
+    scene->addObject(new Octree(glm::vec3(-1.0, -1.0, -1.0), 2.0));
     window->addScene(scene);
 
     // Loop until the user closes the window

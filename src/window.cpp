@@ -1,5 +1,6 @@
-
 #include <chrono>
+#include <cmath>
+#include <iostream>
 #include <thread>
 #include <tuple>
 #include <utility>
@@ -32,8 +33,28 @@ Window::Window(GLFWwindow* window, glm::uvec2 size) {
     mpWindow = window;
     mSize = size;
 
+    // Initialize the camera's position in 3D space
+    mCamFocus = glm::vec3(0.0f);
+    mCamOrientation = glm::vec3(3.0f, M_PI/4, M_PI/2);
+
+    glm::vec3 camPos;
+    camPos.x = mCamOrientation.x * sin(mCamOrientation.y) * cos(mCamOrientation.z);
+    camPos.y = mCamOrientation.x * sin(mCamOrientation.y) * sin(mCamOrientation.z);
+    camPos.z = mCamOrientation.x * cos(mCamOrientation.y);
+
+    // Initialize the view matrix, essentially the camera or "eye" orientation in space
+    mViewMatrix = glm::mat4(1.0f);
+    mViewMatrix *= glm::lookAt(
+            camPos,                         // The eye's position in 3d space
+            mCamFocus,                      // What the eye is looking at
+            glm::vec3(0.0f, 1.0f, 0.0f));   // The eye's orientation vector (which way is up)
+
+    mProjMatrix = glm::mat4(1.0f);
+    mProjMatrix *= glm::perspective(45.0f, float(mSize.x)/float(mSize.y), 0.1f, 100.0f);
+
     /* Setup the proper callbacks */
     glfwSetFramebufferSizeCallback(mpWindow, this->resizeCallback);
+    glfwSetScrollCallback(mpWindow, this->scrollCallback);
 
     /* Make the window's context current */
     glfwMakeContextCurrent(mpWindow);
@@ -42,17 +63,6 @@ Window::Window(GLFWwindow* window, glm::uvec2 size) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    // Initialize the view matrix, essentially the camera or "eye" orientation in space
-    mViewMatrix = glm::mat4(1.0f);
-    mViewMatrix *= glm::lookAt(
-            glm::vec3(1.0f, 2.0f, 2.0f),    // The eye's position in 3d space
-            glm::vec3(0.0f, 0.0f, 0.0f),    // What the eye is looking at
-            glm::vec3(0.0f, 1.0f, 0.0f));    // The eye's orientation vector (which way is up)
-    mProjMatrix = glm::mat4(1.0f);
-    mProjMatrix *= glm::perspective(45.0f, float(size.x)/float(size.y), 0.1f, 100.0f);
-
-    // Create the uniform buffer object that will hold this window's variables
-    // that we need to pass to the shader.
     glGenBuffers(1, &mUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
         glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STATIC_DRAW);
@@ -80,6 +90,20 @@ void Window::resizeCallback(GLFWwindow *glfwWindow, int width, int height) {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
+void Window::scrollCallback(GLFWwindow *glfwWindow, double xoffset, double yoffset) {
+    Window* window = &(Window::msWindows[glfwWindow]);
+    window->mCamOrientation += glm::vec3(yoffset, 0.0f, 0.0f);
+}
+
+void Window::camRotateCallback(GLFWwindow *glfwWindow, double xpos, double ypos) {
+    Window* window = &(Window::msWindows[glfwWindow]);
+    glm::dvec2 deltaPos = window->mCamMousePrevFrame - glm::dvec2(xpos, ypos);
+    window->mCamOrientation.z += (deltaPos.x * 0.005);
+    window->mCamOrientation.y += (deltaPos.y * 0.005);
+    window->mCamMousePrevFrame = glm::vec2(xpos, ypos);
+    std::cout << "mCamOrientation: " << window->mCamOrientation.x << " " << window->mCamOrientation.y << " " << window->mCamOrientation.z << std::endl;
+}
+
 void Window::addScene(Scene *pScene) {
     mpScene = pScene;
 }
@@ -87,11 +111,39 @@ void Window::addScene(Scene *pScene) {
 void Window::refresh() {
     glfwSetTime(0.0f);
 
+    // Refresh the camera
+    glm::vec3 camPos;
+    camPos.z = mCamOrientation.x * sin(mCamOrientation.y) * cos(mCamOrientation.z);
+    camPos.x = mCamOrientation.x * sin(mCamOrientation.y) * sin(mCamOrientation.z);
+    camPos.y = mCamOrientation.x * cos(mCamOrientation.y);
+
+    mViewMatrix = glm::mat4(1.0f);
+    mViewMatrix *= glm::lookAt(
+            camPos,                         // The eye's position in 3d space
+            mCamFocus,                      // What the eye is looking at
+            glm::vec3(0.0f, 1.0f, 0.0f));   // The eye's orientation vector (which way is up)
+
+    glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(mViewMatrix));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     mpScene->render(*this);
 
     /* Swap buffers, poll events */
     glfwSwapBuffers(mpWindow);
     glfwPollEvents();
+
+    int middleMouseState = glfwGetMouseButton(mpWindow, GLFW_MOUSE_BUTTON_3);
+    if (middleMouseState == GLFW_PRESS) {
+        double x, y;
+        glfwGetCursorPos(mpWindow, &x, &y);
+        mCamMousePrevFrame = glm::vec2(x, y);
+        // FIXME: This is being called every time the mouse moves while the
+        // middle mouse button is being held down. It should only be called once.
+        glfwSetCursorPosCallback(mpWindow, this->camRotateCallback);
+    } else if (middleMouseState == GLFW_RELEASE) {
+        glfwSetCursorPosCallback(mpWindow, nullptr);
+    }
 
     // Cap our framerate at MAX_FPS
     if (glfwGetTime() < MAX_FPS_INTERVAL) {

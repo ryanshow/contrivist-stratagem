@@ -70,6 +70,7 @@ if (HAVE_STD_CPP11_FLAG)
 endif ()
 
 add_definitions(-DGLM_FORCE_RADIANS)
+add_definitions(-DGLM_SWIZZLE)
 add_definitions(-DGL_GLEXT_PROTOTYPES)
 
 target_link_libraries (cs format glfw ${GLFW_LIBRARIES})
