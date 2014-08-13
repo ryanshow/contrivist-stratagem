@@ -43,23 +43,23 @@ void main() {
 
     vertPos -= (rightVec * ratio / 2);
     gl_Position = gWindow.projMatrix * gWindow.viewMatrix * gModel.modelMatrix * vec4(vertPos, 1.0);
-    gOutFrag.tex0 = gVertices[0].tex0;
+    gOutFrag.tex0 = gVertices[0].tex0 + vec2(1.0, 1.0);
     EmitVertex();
 
     vertPos.y += 1.0;
     gl_Position = gWindow.projMatrix * gWindow.viewMatrix * gModel.modelMatrix * vec4(vertPos, 1.0);
-    gOutFrag.tex0 = gVertices[0].tex0 + vec2(0.0, 1.0);
+    gOutFrag.tex0 = gVertices[0].tex0 + vec2(1.0, 0.0);
     EmitVertex();
 
     vertPos.y -= 1.0;
     vertPos += (rightVec * ratio);
     gl_Position = gWindow.projMatrix * gWindow.viewMatrix * gModel.modelMatrix * vec4(vertPos, 1.0);
-    gOutFrag.tex0 = gVertices[0].tex0 + vec2(1.0, 0.0);
+    gOutFrag.tex0 = gVertices[0].tex0 + vec2(0.0, 1.0);
     EmitVertex();
 
     vertPos.y += 1.0;
     gl_Position = gWindow.projMatrix * gWindow.viewMatrix * gModel.modelMatrix * vec4(vertPos, 1.0);
-    gOutFrag.tex0 = gVertices[0].tex0 + vec2(1.0, 1.0);
+    gOutFrag.tex0 = gVertices[0].tex0;
     EmitVertex();
 
     EndPrimitive();

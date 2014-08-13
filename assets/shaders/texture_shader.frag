@@ -23,7 +23,7 @@ in fData {
 } gFrag;
 
 void main() {
-    FragColor = gFrag.color * texture(gColorMap, vec2(1.0-gFrag.tex0.s, 1.0-gFrag.tex0.t));
+    FragColor = gFrag.color * texture(gColorMap, gFrag.tex0);
 
     // TODO: Implement proper alpha
     if (FragColor.a < 0.5) {
