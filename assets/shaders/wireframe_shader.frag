@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 layout(location=0) out vec4 FragColor;
 
@@ -15,20 +15,16 @@ layout (std140) uniform Model {
     uvec2 padding;
 } gModel;
 
-uniform sampler2D gColorMap;
-
 in fData {
     vec3 position;
     vec3 normal;
     vec4 color;
     vec2 tex0;
+    noperspective vec3 dist;
 } gFrag;
 
-void main() {
-    FragColor = gFrag.color * texture(gColorMap, gFrag.tex0);
-
-    // TODO: Implement proper alpha
-    if (FragColor.a < 0.5) {
-        discard;
-    }
+void main(void) {
+    float nearD = min(min(gFrag.dist.x, gFrag.dist.y), gFrag.dist.z);
+    float edgeIntensity = exp2(-1.0*nearD*nearD);
+    FragColor = vec4(vec3(1.0) - vec3(edgeIntensity), 1.0) * gFrag.color;
 }

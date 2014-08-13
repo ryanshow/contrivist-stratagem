@@ -3,6 +3,8 @@
 layout (std140) uniform Window {
     mat4 projMatrix;
     mat4 viewMatrix;
+    uvec2 winSize;
+    uvec2 padding;
 } gWindow;
 
 layout (std140) uniform Model {

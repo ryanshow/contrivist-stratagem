@@ -102,6 +102,7 @@ BaseObject::BaseObject() {
 }
 
 void BaseObject::bindBufferData() const {
+    glPrimitiveRestartIndex(8);
     // Bind the vertex buffer data
     glBindBuffer(GL_ARRAY_BUFFER, mpBufferObjects[VERTEX]);
         glBufferData(

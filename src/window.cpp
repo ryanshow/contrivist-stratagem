@@ -64,11 +64,14 @@ Window::Window(GLFWwindow* window, glm::uvec2 size) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
+    glEnable(GL_PRIMITIVE_RESTART);
+
     glGenBuffers(1, &mUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STATIC_DRAW);
+        glBufferData(GL_UNIFORM_BUFFER, (sizeof(glm::mat4) * 2) + (sizeof(glm::uvec2) * 2), NULL, GL_STATIC_DRAW);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(mProjMatrix));
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(mViewMatrix));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::uvec2), glm::value_ptr(mSize));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -84,8 +87,11 @@ void Window::resizeCallback(GLFWwindow *glfwWindow, int width, int height) {
     window->mProjMatrix = glm::mat4(1.0f);
     window->mProjMatrix *= glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
 
+    glViewport(0, 0, width, height);
+
     glBindBuffer(GL_UNIFORM_BUFFER, window->mUBO);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(window->mProjMatrix));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::uvec2), glm::value_ptr(window->mSize));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
