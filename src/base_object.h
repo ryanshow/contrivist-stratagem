@@ -29,7 +29,6 @@ class BaseObject {
             glm::vec4 col;
             glm::vec2 tx0;
             glm::vec2 tx1;
-            glm::vec2 tx2;
         } Vertex;
 
         enum {
@@ -45,7 +44,7 @@ class BaseObject {
         MatrixStack     mModelMatrixStack;
 
         void            bindBufferData() const;
-        void            bindMatrixData(const Window & window, const Scene & scene, const unsigned char bind_mask) const;
+        void            bindMatrixData() const;
         virtual void    render(const Window & window, const Scene & scene);
         void            setVertices(Vertex* vert_list, int vert_count);
         void            setIndices(int* pIndexList, int indexCount);
@@ -56,7 +55,7 @@ class BaseObject {
         std::vector<GLushort>   mIndexList;
         GLuint *                mpBufferObjects;
         GLuint                  mVAO;
-        GLuint                  mUBOBindingIndex;
+        static GLuint           msUBOBindingIndex;
         GLenum                  mDrawMethod;
 };
 

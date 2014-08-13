@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <GLFW/glfw3.h>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -20,13 +22,13 @@ void Grid::setStep(int size, float step) {
 
     Vertex v[4] {};
     v[0].col = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    v[1].pos.x = float(size);
     v[1].col = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    v[1].pos.x = float(size);
 
     // Vertices used for the centerline
     v[2].col = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    v[3].pos.x = float(size);
     v[3].col = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    v[3].pos.x = float(size);
 
     int i[4] {0, 1, 2, 3};
 
@@ -36,13 +38,11 @@ void Grid::setStep(int size, float step) {
 }
 
 void Grid::render(const Window& window, const Scene& scene) {
+    glBindBufferRange(GL_UNIFORM_BUFFER, BaseObject::msUBOBindingIndex, mpBufferObjects[UNIFORM], 0, sizeof(glm::mat4)+sizeof(glm::uvec2));
     // Make our vertex array active
     glBindVertexArray(mVAO);
         // Tell the renderer to use our shader program when rendering our object
         glUseProgram(mpShader->mProgramId);
-            // Bind the Projection/View matricies to the shader
-            this->bindMatrixData(window, scene, M_PROJECTION|M_VIEW);
-
             // Draw the gridlines. Starting at the center and going out in both directions.
             mModelMatrixStack.pushMatrix(); // Push 1
             mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(-(this->size/2.0), 0.0f, 0.0f)));
@@ -50,7 +50,7 @@ void Grid::render(const Window& window, const Scene& scene) {
                 mModelMatrixStack.pushMatrix(); // Push 2
                 for (int j=0; j<int(this->size/this->step)/2; j++) {
                     mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(0.0f, 0.0f, i*this->step)));
-                    this->bindMatrixData(window, scene, M_MODEL);
+                    bindMatrixData();
                     // Render the vao on the screen
                     glDrawElements(
                         mDrawMethod,
@@ -69,7 +69,7 @@ void Grid::render(const Window& window, const Scene& scene) {
                 mModelMatrixStack.pushMatrix(); // Push 2
                 for (int j=0; j<int(this->size/this->step)/2; j++) {
                     mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(0.0f, 0.0f, i*this->step)));
-                    this->bindMatrixData(window, scene, M_MODEL);
+                    bindMatrixData();
                     // Render the vao on the screen
                     glDrawElements(
                         mDrawMethod,
@@ -90,7 +90,7 @@ void Grid::render(const Window& window, const Scene& scene) {
             // Draw the centerlines
             mModelMatrixStack.pushMatrix(); // Push 1
             mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
-            this->bindMatrixData(window, scene, M_MODEL);
+            bindMatrixData();
             glDrawElements(
                 mDrawMethod,
                 2,
@@ -101,7 +101,7 @@ void Grid::render(const Window& window, const Scene& scene) {
             mModelMatrixStack.pushMatrix(); // Push 1
             mModelMatrixStack.setMatrix(glm::rotate(mModelMatrixStack.getMatrix(), float(M_PI/2), glm::vec3(0.0f, -1.0f, 0.0f)));
             mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
-            this->bindMatrixData(window, scene, M_MODEL);
+            bindMatrixData();
             glDrawElements(
                 mDrawMethod,
                 2,

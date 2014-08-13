@@ -6,13 +6,15 @@
 #include "scene.h"
 #include "window.h"
 
+GLuint BaseObject::msUBOBindingIndex = 1;
+
 BaseObject::BaseObject() {
 
     // Set up the default shader for the object
     ShaderTypeNameMap shader_type_names;
     shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
     shader_type_names[GL_FRAGMENT_SHADER] = "simple_shader.frag";
-    //shader_type_names[GL_GEOMETRY_SHADER] = "simple_shader.geom";
+    shader_type_names[GL_GEOMETRY_SHADER] = "simple_shader.geom";
     mpShader = Shader::getShader(shader_type_names);
 
     // Initialize the model transformation matrix
@@ -44,7 +46,7 @@ BaseObject::BaseObject() {
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(Vertex),
-                (void*)offsetof(Vertex, pos));
+                (GLvoid*)offsetof(Vertex, pos));
 
             // Normal (XYZ)
             glEnableVertexAttribArray(1);
@@ -54,7 +56,7 @@ BaseObject::BaseObject() {
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(Vertex),
-                (void*)offsetof(Vertex, nor));
+                (GLvoid*)offsetof(Vertex, nor));
 
             // Color (RGBA)
             glEnableVertexAttribArray(2);
@@ -64,7 +66,7 @@ BaseObject::BaseObject() {
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(Vertex),
-                (void*)offsetof(Vertex, col));
+                (GLvoid*)offsetof(Vertex, col));
 
             // Texture (ST)
             // TODO: I should bind the last 3 textures here and access it as an array in the shader
@@ -75,7 +77,18 @@ BaseObject::BaseObject() {
                 GL_FLOAT,
                 GL_FALSE,
                 sizeof(Vertex),
-                (void*)offsetof(Vertex, tx0));
+                (GLvoid*)offsetof(Vertex, tx0));
+
+            // Texture (ST)
+            glEnableVertexAttribArray(4);
+            glVertexAttribPointer(
+                4,
+                2,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Vertex),
+                (GLvoid*)offsetof(Vertex, tx1));
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // Bind the index buffer to the VAO, since that's what we'll use to render
@@ -83,16 +96,9 @@ BaseObject::BaseObject() {
     glBindVertexArray(0);
 
     glBindBuffer(GL_UNIFORM_BUFFER, mpBufferObjects[UNIFORM]);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) + sizeof(glm::uvec2), NULL, GL_STATIC_DRAW);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) + sizeof(glm::uvec2) + sizeof(glm::uvec2), NULL, GL_DYNAMIC_DRAW);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(mModelMatrixStack.getMatrix()));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    mUBOBindingIndex = Window::createUniformBindingIndex();
-    glUniformBlockBinding(
-        mpShader->mProgramId,
-        glGetUniformBlockIndex(mpShader->mProgramId, "Model"),
-        this->mUBOBindingIndex);
-
 }
 
 void BaseObject::bindBufferData() const {
@@ -101,8 +107,8 @@ void BaseObject::bindBufferData() const {
         glBufferData(
             GL_ARRAY_BUFFER,
             sizeof(Vertex)*mVertexList.size(),
-            &(mVertexList)[0],
-            GL_STATIC_DRAW);
+            mVertexList.data(),
+            GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Bind the Index buffer data
@@ -110,43 +116,25 @@ void BaseObject::bindBufferData() const {
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
             sizeof(GLuint)*mIndexList.size(),
-            &(mIndexList)[0],
-            GL_STATIC_DRAW);
+            mIndexList.data(),
+            GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void BaseObject::bindMatrixData(const Window & window, const Scene & scene, const unsigned char bind_mask) const {
-    if (bind_mask & M_PROJECTION || bind_mask & M_VIEW) {
-        glUniformBlockBinding(
-            mpShader->mProgramId,
-            glGetUniformBlockIndex(mpShader->mProgramId, "Window"),
-            window.mUBOBindingIndex);
-        glBindBufferRange(GL_UNIFORM_BUFFER, window.mUBOBindingIndex, window.mUBO, 0, sizeof(glm::mat4) * 2);
-    }
-    if (bind_mask & M_MODEL) {
-        // FIXME: This should only occur when the model is transformed
-        glBindBuffer(GL_UNIFORM_BUFFER, mpBufferObjects[UNIFORM]);
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(mModelMatrixStack.getMatrix()));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        // FIXME: It should not be necessary to bind this every frame.. find out why it's needed here.
-        glUniformBlockBinding(
-            mpShader->mProgramId,
-            glGetUniformBlockIndex(mpShader->mProgramId, "Model"),
-            mUBOBindingIndex);
-
-        glBindBufferRange(GL_UNIFORM_BUFFER, mUBOBindingIndex, mpBufferObjects[UNIFORM], 0, sizeof(glm::mat4));
-    }
+void BaseObject::bindMatrixData() const {
+    glBindBuffer(GL_UNIFORM_BUFFER, mpBufferObjects[UNIFORM]);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(mModelMatrixStack.getMatrix()));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void BaseObject::render(const Window & window, const Scene & scene) {
+    // This binds the mpBufferObjects[UNIFORM] UBO to the binding index at mUBOBindingIndex
+    glBindBufferRange(GL_UNIFORM_BUFFER, BaseObject::msUBOBindingIndex, mpBufferObjects[UNIFORM], 0, sizeof(glm::mat4)+sizeof(glm::uvec2));
 
     // Make our vertex array active
     glBindVertexArray(mVAO);
         // Tell the renderer to use our shader program when rendering our object
         glUseProgram(mpShader->mProgramId);
-            this->bindMatrixData(window, scene, M_PROJECTION|M_VIEW|M_MODEL);
-
             // Render the vao on the screen using "GL_LINE_LOOP"
             glDrawElements(
                 mDrawMethod,

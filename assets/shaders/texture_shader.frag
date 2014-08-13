@@ -10,19 +10,20 @@ layout (std140) uniform Window {
 layout (std140) uniform Model {
     mat4 modelMatrix;
     uvec2 texSize;
+    uvec2 padding;
 } gModel;
 
 uniform sampler2D gColorMap;
 
-in VertexData {
+in fData {
     vec3 position;
     vec3 normal;
     vec4 color;
-    vec2 texture;
-} gInData;
+    vec2 tex0;
+} gFrag;
 
 void main() {
-    FragColor = gInData.color * texture(gColorMap, vec2(1.0-gInData.texture.s, 1.0-gInData.texture.t));
+    FragColor = gFrag.color * texture(gColorMap, vec2(1.0-gFrag.tex0.s, 1.0-gFrag.tex0.t));
 
     // TODO: Implement proper alpha
     if (FragColor.a < 0.5) {

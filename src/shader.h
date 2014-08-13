@@ -9,15 +9,14 @@ typedef std::map<const char*,GLuint> ShaderIdMap;
 typedef std::map<GLuint,const char*> ShaderTypeNameMap;
 typedef std::pair<GLuint,const char*> ShaderTypeName;
 
-
 class Shader {
     public:
         GLuint mProgramId;
 
-                    Shader(){};
-        explicit    Shader(const ShaderTypeNameMap &shader_names);
+        Shader(){};
+        explicit Shader(const ShaderTypeNameMap& shader_names);
 
-        static Shader *     getShader(const ShaderTypeNameMap &shader_names);
+        static Shader* getShader(const ShaderTypeNameMap& shader_names);
 
     private:
         static std::map<ShaderTypeName,GLuint>      msShaderIdMap;

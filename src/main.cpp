@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     glfwSwapInterval(1);
 
     Scene* scene = Scene::addScene();
-    scene->addObject(new Sprite());
+    scene->addObject(new Sprite(glm::vec3(0.0, 1.0, 0.0)));
     scene->addObject(new Octree(glm::vec3(-1.0, -1.0, -1.0), 2.0));
     window->addScene(scene);
 

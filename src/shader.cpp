@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include <fstream>
-#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -26,7 +25,7 @@ Shader::Shader(const ShaderTypeNameMap & shader_names) {
     GLuint shader_id;
     for (auto &shader_type_name : shader_names) {
         ShaderTypeName shader_pair(shader_type_name.first, shader_type_name.second);
-        shader_id = this->addShader(shader_pair);
+        shader_id = addShader(shader_pair);
         glAttachShader(mProgramId, shader_id);
     }
 
@@ -34,7 +33,16 @@ Shader::Shader(const ShaderTypeNameMap & shader_names) {
 
     int link_success;
     glGetProgramiv(mProgramId, GL_LINK_STATUS, &link_success);
-    if (!link_success) {
+    if (link_success) {
+        glUniformBlockBinding(
+            mProgramId,
+            glGetUniformBlockIndex(mProgramId, "Model"),
+            1);
+        glUniformBlockBinding(
+            mProgramId,
+            glGetUniformBlockIndex(mProgramId, "Window"),
+            0);
+    } else {
         // Get the length of the error message
         GLint length;
         glGetProgramiv(mProgramId, GL_INFO_LOG_LENGTH, &length);
@@ -54,7 +62,7 @@ Shader::Shader(const ShaderTypeNameMap & shader_names) {
 GLuint Shader::addShader(const ShaderTypeName & shader_type_name) {
 
     // Only bother creating this shader if we haven't compiled it before
-    if (Shader::msShaderIdMap.count(shader_type_name) == 0) {
+    //if (Shader::msShaderIdMap.count(shader_type_name) == 0) {
 
         // Create the new shader id
         GLuint shader_id = glCreateShader(shader_type_name.first);
@@ -92,9 +100,9 @@ GLuint Shader::addShader(const ShaderTypeName & shader_type_name) {
         Shader::msShaderIdMap[shader_type_name] = shader_id;
 
         return shader_id;
-    }
+    //}
 
-    return Shader::msShaderIdMap[shader_type_name];
+    //return Shader::msShaderIdMap[shader_type_name];
 }
 
 

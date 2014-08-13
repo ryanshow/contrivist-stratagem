@@ -53,7 +53,6 @@ Octree::Octree(Octree& parent, int octant) {
     static std::minstd_rand generator (seed);
     static std::uniform_int_distribution<int> distribution(1,2);
     int dice_roll = distribution(generator);
-    std::cout << mEdgeSize << std::endl;
     if (mEdgeSize > 0.0625 && dice_roll == 1) {
         subdivide();
     }
@@ -62,12 +61,11 @@ Octree::Octree(Octree& parent, int octant) {
 
 void Octree::render(const Window& window, const Scene& scene) {
     if (mChildren.size() != 0 || mEdgeSize == 0.125) {
+        glBindBufferRange(GL_UNIFORM_BUFFER, 1, mpBufferObjects[UNIFORM], 0, sizeof(glm::mat4)+sizeof(glm::uvec2));
         // Make our vertex array active
         glBindVertexArray(mVAO);
             // Tell the renderer to use our shader program when rendering our object
             glUseProgram(mpShader->mProgramId);
-                // Bind the Projection/View matricies to the shader
-                this->bindMatrixData(window, scene, M_PROJECTION|M_VIEW|M_MODEL);
 
                 // Render the vao on the screen using "GL_LINE_LOOP"
                 glDrawElements(
@@ -107,9 +105,9 @@ void Octree::setup() {
     // FIXME: This should be rendered via tris and then have single pass edges
     int i[16] {0, 1, 2, 3, 7, 6, 2, 1, 5, 4, 0, 3, 7, 4, 5, 6};
 
-    this->setVertices(v, 8);
-    this->setIndices(i, 16);
-    this->bindBufferData();
+    setVertices(v, 8);
+    setIndices(i, 16);
+    bindBufferData();
 }
 
 void Octree::subdivide() {

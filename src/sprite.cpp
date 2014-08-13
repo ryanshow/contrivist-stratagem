@@ -1,6 +1,9 @@
+#include <iostream>
 
 // OpenGL related headers
 #include <GLFW/glfw3.h>
+
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "format.h"
 
@@ -9,7 +12,7 @@
 #include "sprite.h"
 #include "window.h"
 
-Sprite::Sprite() {
+Sprite::Sprite(const glm::vec3 pos) {
     // Set up the default shader for the object
     ShaderTypeNameMap shader_type_names;
     shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
@@ -21,7 +24,9 @@ Sprite::Sprite() {
     mDrawMethod = GL_POINTS;
 
     Vertex v[1] {};
-    v[0].col = glm::vec4(1.0f);
+    v[0].pos = pos;
+    v[0].col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    v[0].tx0 = glm::vec2(0.0, 0.0);
 
     int i[1] {0};
 
@@ -53,13 +58,12 @@ Sprite::Sprite() {
 }
 
 void Sprite::render(const Window & window, const Scene & scene) {
+    glBindBufferRange(GL_UNIFORM_BUFFER, BaseObject::msUBOBindingIndex, mpBufferObjects[UNIFORM], 0, sizeof(glm::mat4)+sizeof(glm::uvec2));
 
     // Make our vertex array active
     glBindVertexArray(mVAO);
         // Tell the renderer to use our shader program when rendering our object
         glUseProgram(mpShader->mProgramId);
-            this->bindMatrixData(window, scene, M_PROJECTION|M_VIEW|M_MODEL);
-
             // Bind the texture data
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, mTextureId);
@@ -71,6 +75,7 @@ void Sprite::render(const Window & window, const Scene & scene) {
                 mIndexList.size(),
                 GL_UNSIGNED_SHORT,
                 (void*)0);
+
         glUseProgram(0);
     glBindVertexArray(0);
 }

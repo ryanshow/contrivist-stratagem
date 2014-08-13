@@ -13,7 +13,7 @@ class Window {
         glm::mat4 mViewMatrix;
         glm::mat4 mProjMatrix;
         GLuint mUBO;
-        GLuint mUBOBindingIndex;
+        static GLuint msUBOBindingIndex;
 
         Window() = default;
         Window(GLFWwindow *window, glm::uvec2 size);
@@ -22,6 +22,7 @@ class Window {
         void addScene(Scene* scene);
         glm::uvec2 getSize();
         void setSize(glm::uvec2 size);
+        void updateViewMatrix();
         static Window* createWindow(const char* title, glm::uvec2 size);
         static GLuint createUniformBindingIndex();
 

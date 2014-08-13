@@ -11,29 +11,30 @@ layout (std140) uniform Window {
 layout (std140) uniform Model {
     mat4 modelMatrix;
     uvec2 texSize;
+    uvec2 padding;
 } gModel;
 
-in VertexData {
+in vData {
     vec3 position;
     vec3 normal;
     vec4 color;
-    vec2 texture;
-} gInData[];
+    vec2 tex0;
+} gVertices[];
 
-out VertexData {
+out fData {
     vec3 position;
     vec3 normal;
     vec4 color;
-    vec2 texture;
-} gOutData;
+    vec2 tex0;
+} gFrag;
 
 void main() {
     for (int i=0; i<gl_in.length(); i++) {
-        gl_Position = gl_in[i].gl_Position.xyzw;
-        gOutData.position = gInData[i].position;
-        gOutData.normal = gInData[i].normal;
-        gOutData.color = gInData[i].color;
-        gOutData.texture = gInData[i].texture;
+        gl_Position = gWindow.projMatrix * gWindow.viewMatrix * gModel.modelMatrix * gl_in[i].gl_Position;
+        gFrag.position = gVertices[i].position.xyz;
+        gFrag.normal = gVertices[i].normal;
+        gFrag.color = gVertices[i].color;
+        gFrag.tex0 = gVertices[i].tex0;
         EmitVertex();
     }
 

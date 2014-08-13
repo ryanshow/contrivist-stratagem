@@ -22,7 +22,8 @@
 
 //Initialize the static class variables
 std::map<GLFWwindow*,Window> Window::msWindows = std::map<GLFWwindow*,Window>{};
-GLuint Window::msUBOBindingIndexCount = 0;
+GLuint Window::msUBOBindingIndexCount = 1;
+GLuint Window::msUBOBindingIndex = 0;
 
 Window::Window(GLFWwindow* window, glm::uvec2 size) {
     if (!window) {
@@ -38,9 +39,9 @@ Window::Window(GLFWwindow* window, glm::uvec2 size) {
     mCamOrientation = glm::vec3(3.0f, M_PI/4, M_PI/2);
 
     glm::vec3 camPos;
-    camPos.x = mCamOrientation.x * sin(mCamOrientation.y) * cos(mCamOrientation.z);
-    camPos.y = mCamOrientation.x * sin(mCamOrientation.y) * sin(mCamOrientation.z);
-    camPos.z = mCamOrientation.x * cos(mCamOrientation.y);
+    camPos.x = mCamOrientation.x * sin(mCamOrientation.y) * sin(mCamOrientation.z);
+    camPos.y = mCamOrientation.x * cos(mCamOrientation.y);
+    camPos.z = mCamOrientation.x * sin(mCamOrientation.y) * cos(mCamOrientation.z);
 
     // Initialize the view matrix, essentially the camera or "eye" orientation in space
     mViewMatrix = glm::mat4(1.0f);
@@ -69,8 +70,6 @@ Window::Window(GLFWwindow* window, glm::uvec2 size) {
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(mProjMatrix));
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(mViewMatrix));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    mUBOBindingIndex = Window::createUniformBindingIndex();
 }
 
 GLFWwindow* Window::getWindow() {
@@ -93,6 +92,13 @@ void Window::resizeCallback(GLFWwindow *glfwWindow, int width, int height) {
 void Window::scrollCallback(GLFWwindow *glfwWindow, double xoffset, double yoffset) {
     Window* window = &(Window::msWindows[glfwWindow]);
     window->mCamOrientation += glm::vec3(yoffset, 0.0f, 0.0f);
+
+    // Don't allow zooming past the camera focus
+    if (window->mCamOrientation.x < 1) {
+        window->mCamOrientation.x = 1;
+    }
+
+    window->updateViewMatrix();
 }
 
 void Window::camRotateCallback(GLFWwindow *glfwWindow, double xpos, double ypos) {
@@ -100,22 +106,24 @@ void Window::camRotateCallback(GLFWwindow *glfwWindow, double xpos, double ypos)
     glm::dvec2 deltaPos = window->mCamMousePrevFrame - glm::dvec2(xpos, ypos);
     window->mCamOrientation.z += (deltaPos.x * 0.005);
     window->mCamOrientation.y += (deltaPos.y * 0.005);
+
+    // Clamp the inclination to 0 < x <= M_PI
+    if (window->mCamOrientation.y > M_PI) {
+        window->mCamOrientation.y = M_PI;
+    } else if (window->mCamOrientation.y <= 0) {
+        window->mCamOrientation.y = 0.0001;
+    }
+
+    window->updateViewMatrix();
     window->mCamMousePrevFrame = glm::vec2(xpos, ypos);
-    std::cout << "mCamOrientation: " << window->mCamOrientation.x << " " << window->mCamOrientation.y << " " << window->mCamOrientation.z << std::endl;
 }
 
-void Window::addScene(Scene *pScene) {
-    mpScene = pScene;
-}
-
-void Window::refresh() {
-    glfwSetTime(0.0f);
-
+void Window::updateViewMatrix() {
     // Refresh the camera
     glm::vec3 camPos;
-    camPos.z = mCamOrientation.x * sin(mCamOrientation.y) * cos(mCamOrientation.z);
     camPos.x = mCamOrientation.x * sin(mCamOrientation.y) * sin(mCamOrientation.z);
     camPos.y = mCamOrientation.x * cos(mCamOrientation.y);
+    camPos.z = mCamOrientation.x * sin(mCamOrientation.y) * cos(mCamOrientation.z);
 
     mViewMatrix = glm::mat4(1.0f);
     mViewMatrix *= glm::lookAt(
@@ -126,6 +134,16 @@ void Window::refresh() {
     glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(mViewMatrix));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Window::addScene(Scene *pScene) {
+    mpScene = pScene;
+}
+
+void Window::refresh() {
+    glfwSetTime(0.0f);
+
+    glBindBufferRange(GL_UNIFORM_BUFFER, Window::msUBOBindingIndex, mUBO, 0, sizeof(glm::mat4)*2);
 
     mpScene->render(*this);
 

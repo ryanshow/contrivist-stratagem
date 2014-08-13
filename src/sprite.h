@@ -16,7 +16,7 @@ struct SpriteAnim {
 
 class Sprite : public BaseObject {
     public:
-        Sprite();
+        Sprite(const glm::vec3 pos);
         void render(const Window & window, const Scene & scene);
     private:
         std::vector<unsigned char> mTextureData;

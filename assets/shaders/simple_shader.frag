@@ -10,15 +10,16 @@ layout (std140) uniform Window {
 layout (std140) uniform Model {
     mat4 modelMatrix;
     uvec2 texSize;
+    uvec2 padding;
 } gModel;
 
-in VertexData {
+in fData {
     vec3 position;
     vec3 normal;
     vec4 color;
-    vec2 texture;
-} gInData;
+    vec2 tex0;
+} gFrag;
 
 void main(void) {
-    FragColor = gInData.color;
+    FragColor = gFrag.color;
 }
