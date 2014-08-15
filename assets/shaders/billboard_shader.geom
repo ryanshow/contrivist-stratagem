@@ -31,7 +31,7 @@ out fData {
 } gOutFrag;
 
 void main() {
-    float scale = 0.125;
+    float scale = 0.3;
 
     vec3 camPos = -gWindow.viewMatrix[3].xyz * mat3(gWindow.viewMatrix);
     vec3 vertPos = gl_in[0].gl_Position.xyz;

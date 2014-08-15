@@ -1,7 +1,7 @@
 #version 330
 
-layout (triangles) in;
-layout (triangle_strip,max_vertices=3) out;
+layout (lines) in;
+layout (line_strip,max_vertices=2) out;
 
 layout (std140) uniform Window {
     mat4 projMatrix;

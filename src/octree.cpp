@@ -1,5 +1,4 @@
 #include <chrono>
-#include <iostream>
 #include <random>
 
 #include <GLFW/glfw3.h>
@@ -53,14 +52,14 @@ Octree::Octree(Octree& parent, int octant) {
     static std::minstd_rand generator (seed);
     static std::uniform_int_distribution<int> distribution(1,5);
     int dice_roll = distribution(generator);
-    if (mEdgeSize > 0.0625 && (dice_roll * mEdgeSize) >= 1) {
+    if (mEdgeSize > 0.0625 && (dice_roll * mEdgeSize) >= 0.7) {
         subdivide();
     }
 
 }
 
 void Octree::render(const Window& window, const Scene& scene) {
-    if (mEdgeSize == 0.125 && mChildren.size() > 0) {
+    if (mChildren.size() == 0) {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, mpBufferObjects[UNIFORM], 0, sizeof(glm::mat4)+sizeof(glm::uvec2));
         // Make our vertex array active
         glBindVertexArray(mVAO);

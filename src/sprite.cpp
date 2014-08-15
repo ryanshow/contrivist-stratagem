@@ -43,6 +43,7 @@ Sprite::Sprite(const glm::vec3 pos) {
     glGenTextures(1, &(mTextureId));
 
     glBindVertexArray(mVAO);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mTextureId);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -64,17 +65,24 @@ void Sprite::render(const Window & window, const Scene & scene) {
     glBindVertexArray(mVAO);
         // Tell the renderer to use our shader program when rendering our object
         glUseProgram(mpShader->mProgramId);
-            // Bind the texture data
+
+            // Specify that we're using the 1st texture slot
+            glUniform1i(glGetUniformLocation(mpShader->mProgramId, "gColorMap"), GL_TEXTURE0);
+
+            // Before rendering the object, we need to bind our texture to the
+            // applicable slot since we're fastidious about unbinding after we're
+            // done playing with object state.
+            // TODO: Support multiple textures per object via a GL_TEXTURE0+i : textureId map
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, mTextureId);
-            glUniform1i(glGetUniformLocation(mpShader->mProgramId, "gColorMap"), 0);
-
-            // Render the vao on the screen using "GL_POINTS"
-            glDrawElements(
-                mDrawMethod,
-                mIndexList.size(),
-                GL_UNSIGNED_SHORT,
-                (void*)0);
+                // Render the vao on the screen using "GL_POINTS"
+                glDrawElements(
+                    mDrawMethod,
+                    mIndexList.size(),
+                    GL_UNSIGNED_SHORT,
+                    (void*)0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
 
         glUseProgram(0);
     glBindVertexArray(0);

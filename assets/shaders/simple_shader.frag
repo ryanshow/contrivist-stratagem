@@ -22,10 +22,6 @@ in fData {
     vec2 tex0;
 } gFrag;
 
-float rand(vec2 co) {
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
-
 void main(void) {
-    FragColor = gFrag.color * rand(gFrag.position.xy);
+    FragColor = gFrag.color;
 }
