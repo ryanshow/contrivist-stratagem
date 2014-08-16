@@ -7,3 +7,6 @@
 [submodule "extern/format"]
 	path = extern/format
 	url = https://github.com/vitaut/format.git
+[submodule "extern/fontstash"]
+	path = extern/fontstash
+	url = git@github.com:ryanshow/fontstash.git
