@@ -43,10 +43,6 @@ SET(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
 SET(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
 add_subdirectory (extern/glfw3)
 
-# Compile freetype-gl
-SET(freetype-gl_BUILD_DEMOS OFF CACHE BOOK "Build the freetype-gl example programs")
-add_subdirectory (extern/freetype-gl)
-
 # Compile Format
 add_subdirectory (extern/format)
 
@@ -77,7 +73,12 @@ target_link_libraries (cs format glfw ${GLFW_LIBRARIES})
 
 add_dependencies (cs version)
 
-file (
-    COPY assets
-    DESTINATION ./
-)
+if (UNIX OR APPLE)
+    execute_process (
+        COMMAND ln -sf ${PROJECT_SOURCE_DIR}/assets ${PROJECT_BINARY_DIR}
+    )
+elseif (WIN32)
+    execute_process (
+        COMMAND mklink /D ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/assets
+    )
+endif ()
