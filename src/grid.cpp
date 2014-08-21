@@ -27,10 +27,10 @@ void Grid::setStep(int size, float step) {
 
     // Vertices used for the centerline
     v[2].col = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    v[3].col = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    v[3].col = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
     v[3].pos.x = float(size);
 
-    int i[4] {0, 1, 2, 3};
+    GLuint i[4] {0, 1, 2, 3};
 
     this->setVertices(v, 4);
     this->setIndices(i, 4);
@@ -55,8 +55,8 @@ void Grid::render(const Window& window, const Scene& scene) {
                     glDrawElements(
                         mDrawMethod,
                         2,
-                        GL_UNSIGNED_SHORT,
-                        (void*)0);
+                        GL_UNSIGNED_INT,
+                        (GLuint*)0);
                 }
                 mModelMatrixStack.popMatrix(); // Pop 2
             }
@@ -74,8 +74,8 @@ void Grid::render(const Window& window, const Scene& scene) {
                     glDrawElements(
                         mDrawMethod,
                         2,
-                        GL_UNSIGNED_SHORT,
-                        (void*)0);
+                        GL_UNSIGNED_INT,
+                        (GLuint*)0);
                 }
                 mModelMatrixStack.popMatrix(); // Pop 2
             }
@@ -89,24 +89,24 @@ void Grid::render(const Window& window, const Scene& scene) {
 
             // Draw the centerlines
             mModelMatrixStack.pushMatrix(); // Push 1
-            mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
+            mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(-(this->size/2.0), 0.0f, 0.0f)));
             bindMatrixData();
             glDrawElements(
                 mDrawMethod,
                 2,
-                GL_UNSIGNED_SHORT,
-                (char *)NULL + (4));
+                GL_UNSIGNED_INT,
+                (GLuint *)0 + 2);
             mModelMatrixStack.popMatrix(); // Pop 1
 
             mModelMatrixStack.pushMatrix(); // Push 1
             mModelMatrixStack.setMatrix(glm::rotate(mModelMatrixStack.getMatrix(), float(M_PI/2), glm::vec3(0.0f, -1.0f, 0.0f)));
-            mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(-(this->size/2.0)+0.1, 0.0f, 0.0f)));
+            mModelMatrixStack.setMatrix(glm::translate(mModelMatrixStack.getMatrix(), glm::vec3(-(this->size/2.0), 0.0f, 0.0f)));
             bindMatrixData();
             glDrawElements(
                 mDrawMethod,
                 2,
-                GL_UNSIGNED_SHORT,
-                (char *)NULL + (4));
+                GL_UNSIGNED_INT,
+                (GLuint *)0 + 2);
             mModelMatrixStack.popMatrix(); // Pop 1
 
             // Return depth testing to what it was before we disabled it.

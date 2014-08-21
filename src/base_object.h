@@ -1,6 +1,7 @@
 #ifndef BASE_OBJECT_H
 #define BASE_OBJECT_H
 
+#include <climits>
 #include <vector>
 
 #include <GLFW/glfw3.h>
@@ -9,14 +10,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-enum {
-    M_PROJECTION = 1,
-    M_VIEW = 2,
-    M_MODEL = 4
-};
-
 #include "matrix.h"
 #include "shader.h"
+
+const GLuint RESTART_INDEX = UINT_MAX;
 
 class Scene;
 class Window;
@@ -47,12 +44,12 @@ class BaseObject {
         void            bindMatrixData() const;
         virtual void    render(const Window & window, const Scene & scene);
         void            setVertices(Vertex* vert_list, int vert_count);
-        void            setIndices(int* pIndexList, int indexCount);
+        void            setIndices(GLuint* pIndexList, int indexCount);
 
     protected:
         // Information about the model's vertices/indices
         std::vector<Vertex>     mVertexList;
-        std::vector<GLushort>   mIndexList;
+        std::vector<GLuint>     mIndexList;
         GLuint *                mpBufferObjects;
         GLuint                  mVAO;
         static GLuint           msUBOBindingIndex;

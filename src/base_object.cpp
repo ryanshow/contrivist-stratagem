@@ -14,7 +14,7 @@ BaseObject::BaseObject() {
     ShaderTypeNameMap shader_type_names;
     shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
     shader_type_names[GL_FRAGMENT_SHADER] = "simple_shader.frag";
-    shader_type_names[GL_GEOMETRY_SHADER] = "simple_shader.geom";
+    shader_type_names[GL_GEOMETRY_SHADER] = "simple_lines.geom";
     mpShader = Shader::getShader(shader_type_names);
 
     // Initialize the model transformation matrix
@@ -68,7 +68,7 @@ BaseObject::BaseObject() {
                 sizeof(Vertex),
                 (GLvoid*)offsetof(Vertex, col));
 
-            // Texture (ST)
+            // Texture0 (ST)
             // TODO: I should bind the last 3 textures here and access it as an array in the shader
             glEnableVertexAttribArray(3);
             glVertexAttribPointer(
@@ -79,7 +79,7 @@ BaseObject::BaseObject() {
                 sizeof(Vertex),
                 (GLvoid*)offsetof(Vertex, tx0));
 
-            // Texture (ST)
+            // Texture1 (ST)
             glEnableVertexAttribArray(4);
             glVertexAttribPointer(
                 4,
@@ -102,7 +102,7 @@ BaseObject::BaseObject() {
 }
 
 void BaseObject::bindBufferData() const {
-    glPrimitiveRestartIndex(8);
+    glPrimitiveRestartIndex(RESTART_INDEX);
     // Bind the vertex buffer data
     glBindBuffer(GL_ARRAY_BUFFER, mpBufferObjects[VERTEX]);
         glBufferData(
@@ -140,8 +140,8 @@ void BaseObject::render(const Window & window, const Scene & scene) {
             glDrawElements(
                 mDrawMethod,
                 mIndexList.size(),
-                GL_UNSIGNED_SHORT,
-                (void*)0);
+                GL_UNSIGNED_INT,
+                (GLuint*)0);
         glUseProgram(0);
     glBindVertexArray(0);
 }
@@ -153,7 +153,7 @@ void BaseObject::setVertices(Vertex* vert_list, int vert_count) {
     }
 }
 
-void BaseObject::setIndices(int* pIndexList, int indexCount) {
+void BaseObject::setIndices(GLuint* pIndexList, int indexCount) {
     mIndexList.clear();
     for (int i=0; i<indexCount; i++) {
         mIndexList.push_back(pIndexList[i]);

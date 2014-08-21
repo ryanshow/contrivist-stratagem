@@ -70,8 +70,8 @@ void Octree::render(const Window& window, const Scene& scene) {
                 glDrawElements(
                     mDrawMethod,
                     mIndexList.size(),
-                    GL_UNSIGNED_SHORT,
-                    (void*)0);
+                    GL_UNSIGNED_INT,
+                    (GLuint*)0);
 
             glUseProgram(0);
         glBindVertexArray(0);
@@ -108,7 +108,7 @@ void Octree::setup() {
     v[6].pos = mCorner + glm::vec3(mEdgeSize, mEdgeSize, mEdgeSize);
     v[7].pos = mCorner + glm::vec3(0.0f, mEdgeSize, mEdgeSize);
 
-    int i[17] {1, 0, 2, 3, 6, 7, 5, 4, 8,
+    GLuint i[17] {1, 0, 2, 3, 6, 7, 5, 4, RESTART_INDEX,
                6, 2, 5, 1, 4, 0, 7, 3};
 
     setVertices(v, 8);

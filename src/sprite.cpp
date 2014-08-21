@@ -28,7 +28,7 @@ Sprite::Sprite(const glm::vec3 pos) {
     v[0].col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     v[0].tx0 = glm::vec2(0.0, 0.0);
 
-    int i[1] {0};
+    GLuint i[1] {0};
 
     this->setVertices(v, 1);
     this->setIndices(i, 1);
@@ -79,8 +79,8 @@ void Sprite::render(const Window & window, const Scene & scene) {
                 glDrawElements(
                     mDrawMethod,
                     mIndexList.size(),
-                    GL_UNSIGNED_SHORT,
-                    (void*)0);
+                    GL_UNSIGNED_INT,
+                    (GLuint*)0);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, 0);
 
