@@ -67,7 +67,8 @@ endif ()
 
 add_definitions(-DGLM_FORCE_RADIANS)
 add_definitions(-DGLM_SWIZZLE)
-add_definitions(-DGL_GLEXT_PROTOTYPES)
+#add_definitions(-DGL_GLEXT_PROTOTYPES)
+add_definitions(-DGLFW_INCLUDE_GLCOREARB)
 
 target_link_libraries (cs format glfw ${GLFW_LIBRARIES})
 
