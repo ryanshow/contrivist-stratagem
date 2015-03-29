@@ -12,9 +12,9 @@ BaseObject::BaseObject() {
 
     // Set up the default shader for the object
     ShaderTypeNameMap shader_type_names;
-    shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
-    shader_type_names[GL_FRAGMENT_SHADER] = "simple_shader.frag";
-    shader_type_names[GL_GEOMETRY_SHADER] = "simple_lines.geom";
+    shader_type_names[GL_VERTEX_SHADER] = "simple_vs.glsl";
+    shader_type_names[GL_FRAGMENT_SHADER] = "simple_fs.glsl";
+    shader_type_names[GL_GEOMETRY_SHADER] = "lines_gs.glsl";
     mpShader = Shader::getShader(shader_type_names);
 
     // Initialize the model transformation matrix

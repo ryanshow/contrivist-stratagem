@@ -15,9 +15,9 @@
 Sprite::Sprite(const glm::vec3 pos) {
     // Set up the default shader for the object
     ShaderTypeNameMap shader_type_names;
-    shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
-    shader_type_names[GL_GEOMETRY_SHADER] = "billboard_shader.geom";
-    shader_type_names[GL_FRAGMENT_SHADER] = "texture_shader.frag";
+    shader_type_names[GL_VERTEX_SHADER] = "simple_vs.glsl";
+    shader_type_names[GL_GEOMETRY_SHADER] = "billboard_gs.glsl";
+    shader_type_names[GL_FRAGMENT_SHADER] = "texture_fs.glsl";
     mpShader = Shader::getShader(shader_type_names);
 
     // Set the default draw method

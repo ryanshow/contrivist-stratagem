@@ -85,9 +85,9 @@ void Octree::render(const Window& window, const Scene& scene) {
 void Octree::setup() {
 
     ShaderTypeNameMap shader_type_names;
-    shader_type_names[GL_VERTEX_SHADER] = "simple_shader.vert";
-    shader_type_names[GL_GEOMETRY_SHADER] = "wireframe_shader.geom";
-    shader_type_names[GL_FRAGMENT_SHADER] = "wireframe_shader.frag";
+    shader_type_names[GL_VERTEX_SHADER] = "simple_vs.glsl";
+    shader_type_names[GL_GEOMETRY_SHADER] = "wireframe_gs.glsl";
+    shader_type_names[GL_FRAGMENT_SHADER] = "wireframe_fs.glsl";
     mpShader = Shader::getShader(shader_type_names);
 
     mDrawMethod = GL_TRIANGLE_STRIP;
