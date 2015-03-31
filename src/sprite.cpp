@@ -67,7 +67,7 @@ void Sprite::render(const Window & window, const Scene & scene) {
         glUseProgram(mpShader->mProgramId);
 
             // Specify that we're using the 1st texture slot
-            glUniform1i(glGetUniformLocation(mpShader->mProgramId, "gColorMap"), GL_TEXTURE0);
+            glUniform1i(glGetUniformLocation(mpShader->mProgramId, "gColorMap"), 0);
 
             // Before rendering the object, we need to bind our texture to the
             // applicable slot since we're fastidious about unbinding after we're
@@ -81,8 +81,8 @@ void Sprite::render(const Window & window, const Scene & scene) {
                     mIndexList.size(),
                     GL_UNSIGNED_INT,
                     (GLuint*)0);
-            glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, 0);
+            glActiveTexture(0);
 
         glUseProgram(0);
     glBindVertexArray(0);
